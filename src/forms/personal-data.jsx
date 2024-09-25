@@ -2,8 +2,36 @@ import { Fieldset, Grid, TextInput, Radio, Group, Select } from "@mantine/core";
 import { DateInput } from "@mantine/dates";
 import InputWithMask from "react-input-mask";
 import { FormSectionTitle } from "../components/form-section-title";
+import { useState } from "react";
 
-export const FormPersonalData = () => {
+export function FormPersonalData () {
+
+  const [dataUser, setDataUser] = useState({
+    fullName:'',
+    gender:'',
+    nacionality:'',
+    placeBirth:'',
+    birthday:'',
+    email:'',
+    telephone:'',
+    cellPhone:'',
+    website:'',
+    linkedin:'',
+    gitHub:'' 
+
+  });
+
+  const handleInputChange = (e)=>{
+    const {name, value} =e.target;
+    setDataUser((prevDateUser)=>({
+      ...prevDateUser,
+      [name]:value
+    }));
+
+  };
+
+
+
   return (
     <Fieldset
       legend={
@@ -14,13 +42,33 @@ export const FormPersonalData = () => {
         />
       }
     >
+      <form >
+
       <Grid>
         <Grid.Col span={{ xs: 12, md: 6 }}>
-          <TextInput label="Nome Completo" />
+          <TextInput 
+          withAsterisk
+          type="text"
+          id="fullName"
+          name="fullName"
+          label="Nome Completo" 
+          placeholder="Digite seu nome completo"
+          value={dataUser.fullName}
+          onChange={handleInputChange}
+          
+          />
         </Grid.Col>
         <Grid.Col span={{ xs: 12, md: 6 }}>
-          <Radio.Group label="Gênero">
+          <Radio.Group 
+          withAsterisk
+          label="Gênero"
+          id="gender"
+          name="gender"
+          value={dataUser.gender}
+          onChange={handleInputChange}
+          >
             <Group my="xs">
+
               <Radio value="male" label="Masculino" />
               <Radio value="female" label="Feminino" />
               <Radio value="other" label="Outro" />
@@ -28,13 +76,24 @@ export const FormPersonalData = () => {
           </Radio.Group>
         </Grid.Col>
         <Grid.Col span={{ xs: 12, md: 3 }}>
-          <Select data={["Brasileiro", "Estrangeiro"]} label="Nacionalidade" />
+          <Select data={["Brasileiro", "Estrangeiro"]} 
+          withAsterisk
+          label="Nacionalidade"
+          id="nacionality"
+          name="nacionality"
+          placeholder="Selecione sua nacionalidade"
+         
+           />
         </Grid.Col>
         <Grid.Col span={{ xs: 12, md: 3 }}>
-          <TextInput label="Naturalidade" />
+          <TextInput
+          withAsterisk
+          label="Naturalidade"
+          id="place" />
         </Grid.Col>
         <Grid.Col span={{ xs: 12, md: 3 }}>
           <DateInput
+            withAsterisk
             valueFormat="DD/MM/YYYY"
             placeholder="DD/MM/YYYY"
             label="Data de Nascimento"
@@ -69,6 +128,9 @@ export const FormPersonalData = () => {
           <TextInput label="GitHub" />
         </Grid.Col>
       </Grid>
+
+
+      </form>
     </Fieldset>
   );
 };
