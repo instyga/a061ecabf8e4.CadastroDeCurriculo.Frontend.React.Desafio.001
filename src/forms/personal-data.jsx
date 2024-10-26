@@ -1,151 +1,185 @@
 import { Grid, TextInput, Radio, Group, Select } from "@mantine/core";
 import { DateInput } from "@mantine/dates";
-import InputWithMask from "react-input-mask";
+import MaskedInput from "react-text-mask";
 import { FormSectionTitle } from "../components/form-section-title";
-import { useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useForm, Controller } from "react-hook-form";
+import { useEffect } from "react";
 
-export function FormPersonalData() {
-  const [dataUser, setDataUser] = useState({
-    fullName: '',
-    gender: '',
-    nacionality: '',
-    placeBirth: '',
-    birthday: '',
-    email: '',
-    telephone: '',
-    cellPhone: '',
-    website: '',
-    linkedin: '',
-    gitHub: ''
+const schema = z.object({
+  fullName: z.string().min(1, "Nome completo é obrigatório"),
+  gender: z.enum(["male", "female", "other"], { required_error: "Gênero é obrigatório" }),
+  nacionality: z.string().min(1, "Nacionalidade é obrigatória"),
+  placeBirth: z.string().min(1, "Naturalidade é obrigatória"),
+  birthday: z.date().refine(date => !isNaN(date.getTime()), {
+    message: "Data de nascimento é obrigatória",
+  }),
+  email: z.string().email("Formato de e-mail inválido"),
+  telephone: z.string().min(1, "Telefone é obrigatório"),
+  cellPhone: z.string().min(1, "Celular é obrigatório"),
+  website: z.string().optional(),
+  linkedIn: z.string().optional(),
+  gitHub: z.string().optional(),
+});
+
+export function FormPersonalData({ onSubmit }) {
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors, isValid },
+  } = useForm({
+    resolver: zodResolver(schema),
+    mode: "onChange",
   });
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setDataUser((prevDataUser) => ({
-      ...prevDataUser,
-      [name]: value
-    }));
-  };
+  useEffect(() => {
+    onSubmit({ isValid });
+  }, [isValid, onSubmit]);
 
   return (
     <div>
-      <h2>
-        <FormSectionTitle step={1} title="Dados Pessoais" caption="Informações Pessoais de contato" />
-      </h2>
-      <form>
+      <FormSectionTitle step={1} title="Dados Pessoais" caption="Informações Pessoais de contato" />
+      <form
+        onSubmit={handleSubmit((data) => {
+          console.log("Dados do formulário enviados:", data);
+          onSubmit({ data, isValid });
+        })}
+      >
         <Grid>
           <Grid.Col span={{ xs: 12, md: 6 }}>
             <TextInput
               withAsterisk
-              type="text"
-              id="fullName"
-              name="fullName"
               label="Nome Completo"
               placeholder="Digite seu nome completo"
-              value={dataUser.fullName}
-              onChange={handleInputChange}
+              {...register("fullName")}
+              error={errors.fullName?.message}
             />
           </Grid.Col>
           <Grid.Col span={{ xs: 12, md: 6 }}>
-            <Radio.Group
-              withAsterisk
-              label="Gênero"
-              id="gender"
+            <Controller
               name="gender"
-              value={dataUser.gender}
-              onChange={handleInputChange}
-            >
-              <Group my="xs">
-                <Radio value="male" label="Masculino" />
-                <Radio value="female" label="Feminino" />
-                <Radio value="other" label="Outro" />
-              </Group>
-            </Radio.Group>
+              control={control}
+              render={({ field }) => (
+                <Radio.Group
+                  withAsterisk
+                  label="Gênero"
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  error={errors.gender?.message}
+                >
+                  <Group my="xs">
+                    <Radio value="male" label="Masculino" />
+                    <Radio value="female" label="Feminino" />
+                    <Radio value="other" label="Outro" />
+                  </Group>
+                </Radio.Group>
+              )}
+            />
           </Grid.Col>
           <Grid.Col span={{ xs: 12, md: 3 }}>
-            <Select
-              data={["Brasileiro", "Estrangeiro"]}
-              withAsterisk
-              label="Nacionalidade"
-              id="nacionality"
+            <Controller
               name="nacionality"
-              placeholder="Selecione sua nacionalidade"
-              value={dataUser.nacionality}
-              onChange={(value) => setDataUser(prev => ({ ...prev, nacionality: value }))}
+              control={control}
+              render={({ field }) => (
+                <Select
+                  data={["Brasileiro", "Estrangeiro"]}
+                  withAsterisk
+                  label="Nacionalidade"
+                  placeholder="Selecione sua nacionalidade"
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  error={errors.nacionality?.message}
+                />
+              )}
             />
           </Grid.Col>
           <Grid.Col span={{ xs: 12, md: 3 }}>
             <TextInput
               withAsterisk
               label="Naturalidade"
-              id="placeBirth"
-              name="placeBirth"
-              value={dataUser.placeBirth}
-              onChange={handleInputChange}
+              {...register('placeBirth')}
+              error={errors.placeBirth?.message}
             />
           </Grid.Col>
           <Grid.Col span={{ xs: 12, md: 3 }}>
-            <DateInput
-              withAsterisk
-              valueFormat="DD/MM/YYYY"
-              placeholder="DD/MM/YYYY"
-              label="Data de Nascimento"
-              value={dataUser.birthday}
-              onChange={(value) => setDataUser(prev => ({ ...prev, birthday: value }))}
+            <Controller
+              control={control}
+              name="birthday"
+              render={({ field }) => (
+                <DateInput
+                  withAsterisk
+                  valueFormat="DD/MM/YYYY"
+                  placeholder="DD/MM/YYYY"
+                  label="Data de Nascimento"
+                  {...field}
+                  error={errors.birthday?.message}
+                />
+              )}
             />
           </Grid.Col>
           <Grid.Col span={{ xs: 12, md: 6 }}>
             <TextInput
               label="E-mail"
-              name="email"
-              value={dataUser.email}
-              onChange={handleInputChange}
+              placeholder="email@email.com"
+              {...register('email')}
+              error={errors.email?.message}
             />
           </Grid.Col>
           <Grid.Col span={{ xs: 12, md: 3 }}>
-            <TextInput
-              component={InputWithMask}
-              mask="(99) 9999-9999"
-              placeholder="(99) 9999-9999"
-              label="Telefone"
+            <Controller
+              control={control}
               name="telephone"
-              value={dataUser.telephone}
-              onChange={handleInputChange}
+              render={({ field }) => (
+                <TextInput
+                  label="Telefone"
+                  component={MaskedInput}
+                  mask={['(', /[0-9]/, /[0-9]/, ')', ' ', /[0-9]/, /[0-9]/, /[0-9]/, /[0-9]/, '-', /[0-9]/, /[0-9]/, /[0-9]/, /[0-9]/]}
+                  placeholder="(99) 9999-9999"
+                  {...field}
+                  error={errors.telephone?.message}
+                />
+              )}
             />
           </Grid.Col>
           <Grid.Col span={{ xs: 12, md: 3 }}>
-            <TextInput
-              label="Celular / Whatsapp"
-              component={InputWithMask}
-              mask="(99) 99999-9999"
-              placeholder="(99) 99999-9999"
+            <Controller
+              control={control}
               name="cellPhone"
-              value={dataUser.cellPhone}
-              onChange={handleInputChange}
+              render={({ field }) => (
+                <TextInput
+                  label="Celular / Whatsapp"
+                  component={MaskedInput}
+                  mask={['(', /[0-9]/, /[0-9]/, ')', ' ', /[0-9]/, /[0-9]/, /[0-9]/, /[0-9]/, /[0-9]/, '-', /[0-9]/, /[0-9]/, /[0-9]/, /[0-9]/]}
+                  placeholder="(99) 99999-9999"
+                  {...field}
+                  error={errors.cellPhone?.message}
+                />
+              )}
             />
           </Grid.Col>
           <Grid.Col span={{ xs: 12, md: 4 }}>
             <TextInput
               label="Website / Portifólio"
-              name="website"
-              value={dataUser.website}
-              onChange={handleInputChange}
+              {...register('website')}
+              error={errors.website?.message}
             />
           </Grid.Col>
           <Grid.Col span={{ xs: 12, md: 4 }}>
             <TextInput
               label="LinkedIn"
-              name="linkedin"
-              value={dataUser.linkedin}
-              onChange={handleInputChange}
+              {...register('linkedIn')}
+              error={errors.linkedIn?.message}
             />
           </Grid.Col>
           <Grid.Col span={{ xs: 12, md: 4 }}>
             <TextInput
               label="GitHub"
-              name="gitHub"
-              value={dataUser.gitHub}
-              onChange={handleInputChange}
+              {...register('gitHub')}
+              error={errors.gitHub?.message}
             />
           </Grid.Col>
         </Grid>
