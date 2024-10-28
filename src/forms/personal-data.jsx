@@ -12,9 +12,13 @@ const schema = z.object({
   gender: z.enum(["male", "female", "other"], { required_error: "Gênero é obrigatório" }),
   nacionality: z.string().min(1, "Nacionalidade é obrigatória"),
   placeBirth: z.string().min(1, "Naturalidade é obrigatória"),
-  birthday: z.date().refine(date => !isNaN(date.getTime()), {
-    message: "Data de nascimento é obrigatória",
-  }),
+  birthday: z.date()
+    .refine(date => !isNaN(date.getTime()), {
+      message: "Data de nascimento é obrigatória",
+    })
+    .refine(date => date < new Date(), {
+      message: "A data de nascimento deve ser anterior a hoje.",
+    }),
   email: z.string().email("Formato de e-mail inválido"),
   telephone: z.string().min(1, "Telefone é obrigatório"),
   cellPhone: z.string().min(1, "Celular é obrigatório"),
@@ -29,14 +33,20 @@ export function FormPersonalData({ onSubmit }) {
     handleSubmit,
     control,
     formState: { errors, isValid },
+    trigger, 
   } = useForm({
     resolver: zodResolver(schema),
-    mode: "onChange",
+    mode: "onBlur", 
   });
 
   useEffect(() => {
     onSubmit({ isValid });
   }, [isValid, onSubmit]);
+
+
+  const handleFocus = async (fieldName) => {
+    await trigger(fieldName); 
+  };
 
   return (
     <div>
@@ -54,7 +64,8 @@ export function FormPersonalData({ onSubmit }) {
               label="Nome Completo"
               placeholder="Digite seu nome completo"
               {...register("fullName")}
-              error={errors.fullName?.message}
+              error={errors.fullName?.message} 
+              onFocus={() => handleFocus("fullName")} 
             />
           </Grid.Col>
           <Grid.Col span={{ xs: 12, md: 6 }}>
@@ -68,7 +79,7 @@ export function FormPersonalData({ onSubmit }) {
                   value={field.value}
                   onChange={field.onChange}
                   onBlur={field.onBlur}
-                  error={errors.gender?.message}
+                  error={errors.gender?.message} 
                 >
                   <Group my="xs">
                     <Radio value="male" label="Masculino" />
@@ -92,7 +103,8 @@ export function FormPersonalData({ onSubmit }) {
                   value={field.value}
                   onChange={field.onChange}
                   onBlur={field.onBlur}
-                  error={errors.nacionality?.message}
+                  error={errors.nacionality?.message} 
+                  onFocus={() => handleFocus("nacionality")} 
                 />
               )}
             />
@@ -102,7 +114,8 @@ export function FormPersonalData({ onSubmit }) {
               withAsterisk
               label="Naturalidade"
               {...register('placeBirth')}
-              error={errors.placeBirth?.message}
+              error={errors.placeBirth?.message} 
+              onFocus={() => handleFocus("placeBirth")} 
             />
           </Grid.Col>
           <Grid.Col span={{ xs: 12, md: 3 }}>
@@ -116,7 +129,8 @@ export function FormPersonalData({ onSubmit }) {
                   placeholder="DD/MM/YYYY"
                   label="Data de Nascimento"
                   {...field}
-                  error={errors.birthday?.message}
+                  error={errors.birthday?.message} 
+                  onFocus={() => handleFocus("birthday")} 
                 />
               )}
             />
@@ -126,7 +140,8 @@ export function FormPersonalData({ onSubmit }) {
               label="E-mail"
               placeholder="email@email.com"
               {...register('email')}
-              error={errors.email?.message}
+              error={errors.email?.message} 
+              onFocus={() => handleFocus("email")} 
             />
           </Grid.Col>
           <Grid.Col span={{ xs: 12, md: 3 }}>
@@ -140,7 +155,8 @@ export function FormPersonalData({ onSubmit }) {
                   mask={['(', /[0-9]/, /[0-9]/, ')', ' ', /[0-9]/, /[0-9]/, /[0-9]/, /[0-9]/, '-', /[0-9]/, /[0-9]/, /[0-9]/, /[0-9]/]}
                   placeholder="(99) 9999-9999"
                   {...field}
-                  error={errors.telephone?.message}
+                  error={errors.telephone?.message} 
+                  onFocus={() => handleFocus("telephone")} 
                 />
               )}
             />
@@ -156,7 +172,8 @@ export function FormPersonalData({ onSubmit }) {
                   mask={['(', /[0-9]/, /[0-9]/, ')', ' ', /[0-9]/, /[0-9]/, /[0-9]/, /[0-9]/, /[0-9]/, '-', /[0-9]/, /[0-9]/, /[0-9]/, /[0-9]/]}
                   placeholder="(99) 99999-9999"
                   {...field}
-                  error={errors.cellPhone?.message}
+                  error={errors.cellPhone?.message} 
+                  onFocus={() => handleFocus("cellPhone")} 
                 />
               )}
             />
@@ -165,21 +182,24 @@ export function FormPersonalData({ onSubmit }) {
             <TextInput
               label="Website / Portifólio"
               {...register('website')}
-              error={errors.website?.message}
+              error={errors.website?.message} 
+              onFocus={() => handleFocus("website")} 
             />
           </Grid.Col>
           <Grid.Col span={{ xs: 12, md: 4 }}>
             <TextInput
               label="LinkedIn"
               {...register('linkedIn')}
-              error={errors.linkedIn?.message}
+              error={errors.linkedIn?.message} 
+              onFocus={() => handleFocus("linkedIn")} 
             />
           </Grid.Col>
           <Grid.Col span={{ xs: 12, md: 4 }}>
             <TextInput
               label="GitHub"
               {...register('gitHub')}
-              error={errors.gitHub?.message}
+              error={errors.gitHub?.message} 
+              onFocus={() => handleFocus("gitHub")} 
             />
           </Grid.Col>
         </Grid>
