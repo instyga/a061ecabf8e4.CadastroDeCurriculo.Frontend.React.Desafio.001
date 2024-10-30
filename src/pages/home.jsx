@@ -4,8 +4,15 @@ import { FormPersonalData } from "../forms/personal-data";
 import { FormProfessionalExperiences } from "../forms/professional-experiences";
 import { ProfessionalExperiencesList } from "../forms/professional-experiences-list";
 import { ScholarshipList } from "../forms/scholarship-list";
+import { useState } from "react";
 
 export const Home = ({ currentStep, onSubmit }) => {
+  const [professionalExperiences, setProfessionalExperiences] = useState([]);
+
+  const handleAddExperience = (experience) => {
+    setProfessionalExperiences((prev) => [...prev, experience]);
+  };
+
   const steps = [
     {
       component: FormPersonalData,
@@ -14,8 +21,8 @@ export const Home = ({ currentStep, onSubmit }) => {
     {
       component: () => (
         <>
-          <FormProfessionalExperiences onSubmit={onSubmit} />
-          <ProfessionalExperiencesList experiences={[]} />
+          <FormProfessionalExperiences onSubmit={onSubmit} onAddExperience={handleAddExperience} />
+          <ProfessionalExperiencesList experiences={professionalExperiences} />
         </>
       ),
       label: "Experiência Profissional",
@@ -32,8 +39,6 @@ export const Home = ({ currentStep, onSubmit }) => {
 
   const CurrentComponent = steps[currentStep]?.component;
 
-
-
   return (
     <Container size="lg">
       <ExperimentalFormAlert />
@@ -45,3 +50,5 @@ export const Home = ({ currentStep, onSubmit }) => {
     </Container>
   );
 };
+
+

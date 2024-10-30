@@ -43,7 +43,6 @@ export function FormPersonalData({ onSubmit }) {
     onSubmit({ isValid });
   }, [isValid, onSubmit]);
 
-
   const handleFocus = async (fieldName) => {
     await trigger(fieldName); 
   };
@@ -96,7 +95,7 @@ export function FormPersonalData({ onSubmit }) {
               control={control}
               render={({ field }) => (
                 <Select
-                  data={["Brasileiro", "Estrangeiro"]}
+                  data={["Brasileiro(a)", "Estrangeiro(a)"]}
                   withAsterisk
                   label="Nacionalidade"
                   placeholder="Selecione sua nacionalidade"
