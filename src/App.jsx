@@ -7,6 +7,7 @@ import { Home } from "./pages/home";
 const App = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [isNextStepAllowed, setIsNextStepAllowed] = useState(false);
+  const [professionalExperiences, setProfessionalExperiences] = useState([]);
   const totalSteps = 3; 
 
   const handleNext = () => {
@@ -21,8 +22,13 @@ const App = () => {
   };
 
   const handleFormSubmit = (isValid) => {
-    setIsNextStepAllowed(isValid); 
+    setIsNextStepAllowed(isValid || professionalExperiences.length > 0); 
   };
+
+  const handleExperienceAdded = (experience) =>{
+    setProfessionalExperiences((prev) => [...prev, experience]);
+    setIsNextStepAllowed(true);
+  }
 
   return (
     <AppShell header={{ height: 60 }} footer={{ height: 80 }} padding="md" bg="gray.0">
@@ -30,7 +36,12 @@ const App = () => {
         <AppHeader />
       </AppShell.Header>
       <AppShell.Main>
-        <Home currentStep={currentStep} onSubmit={handleFormSubmit} />
+        <Home
+         currentStep={currentStep} 
+         onSubmit={handleFormSubmit} 
+         onExperienceAdded={handleExperienceAdded}
+         professionalExperiences={professionalExperiences}
+         />
       </AppShell.Main>
       <AppShell.Footer>
         <AppFooter

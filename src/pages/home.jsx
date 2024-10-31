@@ -1,4 +1,4 @@
-import { Container } from "@mantine/core";
+import { Container, Button } from "@mantine/core";
 import { ExperimentalFormAlert } from "../components/experimental-form-alert";
 import { FormPersonalData } from "../forms/personal-data";
 import { FormProfessionalExperiences } from "../forms/professional-experiences";
@@ -8,10 +8,16 @@ import { useState } from "react";
 
 export const Home = ({ currentStep, onSubmit }) => {
   const [professionalExperiences, setProfessionalExperiences] = useState([]);
+  const [isExperienceFormValid, setIsExperienceFormValid] = useState(false);
 
   const handleAddExperience = (experience) => {
     setProfessionalExperiences((prev) => [...prev, experience]);
   };
+
+  const handleExperienceFormValidation = (isValid) => {
+    setIsExperienceFormValid(isValid);
+  };
+
 
   const steps = [
     {
@@ -21,34 +27,37 @@ export const Home = ({ currentStep, onSubmit }) => {
     {
       component: () => (
         <>
-          <FormProfessionalExperiences onSubmit={onSubmit} onAddExperience={handleAddExperience} />
-          <ProfessionalExperiencesList experiences={professionalExperiences} />
+          <FormProfessionalExperiences
+           onAddExperience={handleAddExperience}
+           onValidation={handleExperienceFormValidation}
+           />
+          <ProfessionalExperiencesList
+           experiences={professionalExperiences} />
         </>
       ),
       label: "Experiência Profissional",
     },
     {
-      component: () => (
-        <>
-          <ScholarshipList scholarships={[]} />
-        </>
-      ),
+      component: () => <ScholarshipList scholarships={[]} />,
       label: "Escolaridade",
     },
   ];
 
   const CurrentComponent = steps[currentStep]?.component;
 
+  const isNextStepAllowed = isExperienceFormValid && professionalExperiences.length > 0;
+
   return (
     <Container size="lg">
       <ExperimentalFormAlert />
       {CurrentComponent ? (
-        <CurrentComponent onSubmit={(data) => onSubmit(data.isValid)} />
+        <CurrentComponent />
       ) : (
         <div>Erro ao carregar o formulário</div>
       )}
+      <Button onClick={() => onSubmit()} disabled={!isNextStepAllowed}>
+        Próximo
+      </Button>
     </Container>
   );
 };
-
-
