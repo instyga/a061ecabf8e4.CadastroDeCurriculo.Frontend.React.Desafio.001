@@ -1,143 +1,68 @@
-import { Button, Checkbox, Fieldset, Grid, Textarea, TextInput } from "@mantine/core";
-import { FormSectionTitle } from "../components/form-section-title";
-import { DateInput } from "@mantine/dates";
-import { useForm, Controller } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { v4 as uuidv4 } from "uuid";
+import { PropTypes } from "prop-types";
+import {
+  Card,
+  Stack,
+  Title,
+  Accordion,
+  Divider,
+  Grid,
+  Text,
+} from "@mantine/core";
+import { CustomAccordionControl } from "../components/custom-accordion-control";
+import { DataBlock } from "../components/data-block";
 
-const baseSchema = z.object({
-  companyName: z.string().min(1, "Nome da empresa é obrigatório"),
-  jobTitle: z.string().min(1, "Cargo é obrigatório"),
-  startDate: z.coerce.date().refine((date) => date <= new Date(), {
-    message: "A data de início deve ser anterior à data atual",
-  }),
-  endDate: z.coerce.date().optional(),
-  description: z.string().min(10, "A descrição é obrigatória e deve conter mínimo 10 caracteres"),
-  isCurrentJob: z.boolean().optional(),
-});
-
-const schema = baseSchema.refine((data) => {
-  if (data.endDate && data.startDate) {
-    return data.endDate >= data.startDate;
-  }
-  return true;
-}, {
-  path: ["endDate"],
-  message: "A data de saída deve ser posterior à data de início",
-});
-
-export function FormProfessionalExperiences({ onAddExperience }) {
-  const {
-    register,
-    handleSubmit,
-    control,
-    reset,
-    formState: { errors, isValid },
-  } = useForm({
-    resolver: zodResolver(schema),
-    mode: "onChange",
-    defaultValues: {
-      isCurrentJob: false,
-    },
-  });
-
-  const onSubmitHandler = (data) => {
-    const experience = {
-      ...data,
-      id: uuidv4(),
-      startDate: data.startDate.toISOString(),
-      endDate: data.isCurrentJob ? "Presente" : data.endDate?.toISOString(),
-    };
-    onAddExperience(experience);
-    reset();
-  };
-
+export const ProfessionalExperiencesList = ({ experiences }) => {
   return (
-    <form onSubmit={handleSubmit(onSubmitHandler)}>
-      <Fieldset
-        legend={
-          <FormSectionTitle
-            step={2}
-            title="Experiência profissional"
-            caption="Lista de experiências profissionais"
-          />
-        }
-      >
-        <Grid>
-          <Grid.Col span={{ xs: 12, md: 6 }}>
-            <TextInput
-              label="Empresa"
-              withAsterisk
-              {...register("companyName")}
-              error={errors.companyName?.message}
-            />
-          </Grid.Col>
-          <Grid.Col span={{ xs: 12, md: 6 }}>
-            <TextInput
-              label="Cargo"
-              withAsterisk
-              {...register("jobTitle")}
-              error={errors.jobTitle?.message}
-            />
-          </Grid.Col>
-          <Grid.Col span={{ xs: 12, md: 3 }}>
-            <Controller
-              name="startDate"
-              control={control}
-              render={({ field }) => (
-                <DateInput
-                  withAsterisk
-                  valueFormat="DD/MM/YYYY"
-                  placeholder="DD/MM/YYYY"
-                  label="Data de início"
-                  {...field}
-                  error={errors.startDate?.message}
-                />
-              )}
-            />
-          </Grid.Col>
-          <Grid.Col span={{ xs: 12, md: 3 }}>
-            <Controller
-              name="endDate"
-              control={control}
-              render={({ field }) => (
-                <DateInput
-                  valueFormat="DD/MM/YYYY"
-                  placeholder="DD/MM/YYYY"
-                  label="Data de saída"
-                  {...field}
-                  error={errors.endDate?.message}
-                />
-              )}
-            />
-          </Grid.Col>
-          <Grid.Col span={{ xs: 12, md: 6 }} align="flex-end">
-            <Controller
-              name="isCurrentJob"
-              control={control}
-              render={({ field }) => (
-                <Checkbox
-                  {...field}
-                  label="Ainda trabalho nesta empresa"
-                  checked={field.value}
-                  onChange={(event) => field.onChange(event.currentTarget.checked)}
-                />
-              )}
-            />
-          </Grid.Col>
-          <Grid.Col span={{ xs: 12, md: 12 }}>
-            <Textarea
-              withAsterisk
-              label="Descrição das atividades"
-              description="Dica: fale sobre as atividades que você exerceu e que trouxeram impactos positivos para a empresa"
-              {...register("description")}
-              error={errors.description?.message}
-            />
-          </Grid.Col>
-        </Grid>
-        <Button type="submit" disabled={!isValid}>Adicionar Experiência</Button>
-      </Fieldset>
-    </form>
+    <Card withBorder mt="md">
+      <Stack>
+        <Title order={3} size="h6">
+          Experiências ({experiences.length})
+        </Title>
+        {experiences.length === 0 && (
+          <Text fw={300} size="sm">
+            Nenhuma experiência profissional cadastrada
+          </Text>
+        )}
+        <Accordion chevronPosition="left" variant="contained">
+          {experiences.map((experience) => (
+            <Accordion.Item key={experience.id} value={experience.id.toString()}>
+              <CustomAccordionControl>
+                <DataBlock label="Empresa" value={experience.companyName} />
+              </CustomAccordionControl>
+              <Accordion.Panel>
+                <Divider mb="xl" />
+                <Grid>
+                  <Grid.Col span={{ xs: 12, md: 6 }}>
+                    <DataBlock label="Cargo" value={experience.jobTitle} />
+                  </Grid.Col>
+                  <Grid.Col span={{ xs: 12, md: 3 }}>
+                    <DataBlock label="Data de início" value={experience.startDate} />
+                  </Grid.Col>
+                  <Grid.Col span={{ xs: 12, md: 3 }}>
+                    <DataBlock label="Data da saída" value={experience.endDate} />
+                  </Grid.Col>
+                  <Grid.Col span={12} align="flex-end">
+                    <DataBlock label="Descrição da atividade" value={experience.description} />
+                  </Grid.Col>
+                </Grid>
+              </Accordion.Panel>
+            </Accordion.Item>
+          ))}
+        </Accordion>
+      </Stack>
+    </Card>
   );
-}
+};
+
+ProfessionalExperiencesList.propTypes = {
+  experiences: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      companyName: PropTypes.string.isRequired,
+      jobTitle: PropTypes.string.isRequired,
+      startDate: PropTypes.string.isRequired,
+      endDate: PropTypes.string.isRequired,
+      description: PropTypes.string.isRequired,
+    })
+  ).isRequired,
+};

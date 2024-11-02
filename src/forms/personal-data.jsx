@@ -7,6 +7,7 @@ import { z } from "zod";
 import { useForm, Controller } from "react-hook-form";
 import { useEffect } from "react";
 
+
 const schema = z.object({
   fullName: z.string().min(1, "Nome completo é obrigatório"),
   gender: z.enum(["male", "female", "other"], { required_error: "Gênero é obrigatório" }),
@@ -32,20 +33,22 @@ export const FormPersonalData = ({ onValidation }) => {
     register,
     handleSubmit,
     control,
-    formState: { errors },
+    formState: { errors, isValid },
     trigger,
   } = useForm({
     resolver: zodResolver(schema),
-    mode: "onBlur",
+    mode: "onChange", 
   });
 
-  useEffect(() => {
-    const isValid = !Object.keys(errors).length;
-    onValidation(isValid);
-  }, [errors, onValidation]);
 
-  const handleFocus = async (fieldName) => {
-    await trigger(fieldName);
+  useEffect(() => {
+    onValidation(isValid); 
+  }, [isValid, onValidation]);
+
+
+ 
+  const handleChange = async () => {
+    await trigger(); 
   };
 
   const onSubmit = (data) => {
@@ -62,9 +65,8 @@ export const FormPersonalData = ({ onValidation }) => {
               withAsterisk
               label="Nome Completo"
               placeholder="Digite seu nome completo"
-              {...register("fullName")}
+              {...register("fullName", { onChange: handleChange })} 
               error={errors.fullName?.message}
-              onFocus={() => handleFocus("fullName")}
             />
           </Grid.Col>
           <Grid.Col span={{ xs: 12, md: 6 }}>
@@ -76,7 +78,10 @@ export const FormPersonalData = ({ onValidation }) => {
                   withAsterisk
                   label="Gênero"
                   value={field.value}
-                  onChange={field.onChange}
+                  onChange={(value) => {
+                    field.onChange(value);
+                    handleChange(); 
+                  }}
                   onBlur={field.onBlur}
                   error={errors.gender?.message}
                 >
@@ -102,11 +107,10 @@ export const FormPersonalData = ({ onValidation }) => {
                   value={field.value}
                   onChange={(value) => {
                     field.onChange(value);
-                    trigger("nacionality");
+                    handleChange(); 
                   }}
                   onBlur={field.onBlur}
                   error={errors.nacionality?.message}
-                  onFocus={() => handleFocus("nacionality")}
                 />
               )}
             />
@@ -115,9 +119,8 @@ export const FormPersonalData = ({ onValidation }) => {
             <TextInput
               withAsterisk
               label="Naturalidade"
-              {...register('placeBirth')}
+              {...register('placeBirth', { onChange: handleChange })} 
               error={errors.placeBirth?.message}
-              onFocus={() => handleFocus("placeBirth")}
             />
           </Grid.Col>
           <Grid.Col span={{ xs: 12, md: 3 }}>
@@ -132,10 +135,9 @@ export const FormPersonalData = ({ onValidation }) => {
                   label="Data de Nascimento"
                   {...field}
                   error={errors.birthday?.message}
-                  onFocus={() => handleFocus("birthday")}
                   onChange={(value) => {
                     field.onChange(value);
-                    trigger("birthday");
+                    handleChange(); 
                   }}
                 />
               )}
@@ -145,9 +147,8 @@ export const FormPersonalData = ({ onValidation }) => {
             <TextInput
               label="E-mail"
               placeholder="email@email.com"
-              {...register('email')}
+              {...register('email', { onChange: handleChange })} 
               error={errors.email?.message}
-              onFocus={() => handleFocus("email")}
             />
           </Grid.Col>
           <Grid.Col span={{ xs: 12, md: 3 }}>
@@ -162,7 +163,6 @@ export const FormPersonalData = ({ onValidation }) => {
                   placeholder="(99) 9999-9999"
                   {...field}
                   error={errors.telephone?.message}
-                  onFocus={() => handleFocus("telephone")}
                 />
               )}
             />
@@ -179,7 +179,6 @@ export const FormPersonalData = ({ onValidation }) => {
                   placeholder="(99) 99999-9999"
                   {...field}
                   error={errors.cellPhone?.message}
-                  onFocus={() => handleFocus("cellPhone")}
                 />
               )}
             />
@@ -187,25 +186,22 @@ export const FormPersonalData = ({ onValidation }) => {
           <Grid.Col span={{ xs: 12, md: 4 }}>
             <TextInput
               label="Website / Portifólio"
-              {...register('website')}
+              {...register('website', { onChange: handleChange })} 
               error={errors.website?.message}
-              onFocus={() => handleFocus("website")}
             />
           </Grid.Col>
           <Grid.Col span={{ xs: 12, md: 4 }}>
             <TextInput
               label="LinkedIn"
-              {...register('linkedIn')}
+              {...register('linkedIn', { onChange: handleChange })} 
               error={errors.linkedIn?.message}
-              onFocus={() => handleFocus("linkedIn")}
             />
           </Grid.Col>
           <Grid.Col span={{ xs: 12, md: 4 }}>
             <TextInput
               label="GitHub"
-              {...register('gitHub')}
+              {...register('gitHub', { onChange: handleChange })} 
               error={errors.gitHub?.message}
-              onFocus={() => handleFocus("gitHub")}
             />
           </Grid.Col>
         </Grid>

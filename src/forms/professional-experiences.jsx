@@ -12,8 +12,6 @@ import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { v4 as uuidv4 } from "uuid";
-import { useEffect } from "react";
-
 
 const baseSchema = z.object({
   companyName: z.string().min(1, "Nome da empresa é obrigatório"),
@@ -27,7 +25,6 @@ const baseSchema = z.object({
 });
 
 const schema = baseSchema.refine((data) => {
- 
   if (data.endDate && data.startDate) {
     return data.endDate >= data.startDate;
   }
@@ -36,13 +33,14 @@ const schema = baseSchema.refine((data) => {
   path: ["endDate"],
   message: "A data de saída deve ser posterior à data de início",
 });
-export function FormProfessionalExperiences({onAddExperience, onValidation }) {
+
+export function FormProfessionalExperiences({ onAddExperience }) {
   const {
     register,
     handleSubmit,
     control,
-    reset, 
-    formState: { errors , isValid},
+    reset,
+    formState: { errors, isValid },
   } = useForm({
     resolver: zodResolver(schema),
     mode: "onChange",
@@ -52,24 +50,15 @@ export function FormProfessionalExperiences({onAddExperience, onValidation }) {
   });
 
   const onSubmitHandler = (data) => {
-    console.log("Dados do formulário:", data);
     const experience = {
       ...data,
       id: uuidv4(),
-      startDate: data.startDate.toISOString(), // Converte para string
-      endDate: data.isCurrentJob ? "Presente" : data.endDate?.toISOString(), // Converte para string ou "Presente"
+      startDate: data.startDate.toISOString(),
+      endDate: data.isCurrentJob ? "Presente" : data.endDate?.toISOString(),
     };
-    console.log("Experiência antes de adicionar:", experience); // Verificando a experiência
     onAddExperience(experience);
-    reset(); 
+    reset();
   };
-
-  useEffect(() => {
-    onValidation(isValid);
-  }, [isValid, onValidation]);
-
-  
-  // console.log("Erros:", errors);
 
   return (
     <form onSubmit={handleSubmit(onSubmitHandler)}>
@@ -159,4 +148,3 @@ export function FormProfessionalExperiences({onAddExperience, onValidation }) {
     </form>
   );
 }
-
