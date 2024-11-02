@@ -27,35 +27,35 @@ const schema = z.object({
   gitHub: z.string().optional(),
 });
 
-export function FormPersonalData({ onSubmit }) {
+export const FormPersonalData = ({ onValidation }) => {
   const {
     register,
     handleSubmit,
     control,
-    formState: { errors, isValid },
-    trigger, 
+    formState: { errors },
+    trigger,
   } = useForm({
     resolver: zodResolver(schema),
-    mode: "onBlur", 
+    mode: "onBlur",
   });
 
   useEffect(() => {
-    onSubmit({ isValid });
-  }, [isValid, onSubmit]);
+    const isValid = !Object.keys(errors).length;
+    onValidation(isValid);
+  }, [errors, onValidation]);
 
   const handleFocus = async (fieldName) => {
-    await trigger(fieldName); 
+    await trigger(fieldName);
+  };
+
+  const onSubmit = (data) => {
+    console.log("Dados pessoais:", data);
   };
 
   return (
     <div>
       <FormSectionTitle step={1} title="Dados Pessoais" caption="Informações Pessoais de contato" />
-      <form
-        onSubmit={handleSubmit((data) => {
-          console.log("Dados do formulário enviados:", data);
-          onSubmit({ data, isValid });
-        })}
-      >
+      <form onSubmit={handleSubmit(onSubmit)}>
         <Grid>
           <Grid.Col span={{ xs: 12, md: 6 }}>
             <TextInput
@@ -63,8 +63,8 @@ export function FormPersonalData({ onSubmit }) {
               label="Nome Completo"
               placeholder="Digite seu nome completo"
               {...register("fullName")}
-              error={errors.fullName?.message} 
-              onFocus={() => handleFocus("fullName")} 
+              error={errors.fullName?.message}
+              onFocus={() => handleFocus("fullName")}
             />
           </Grid.Col>
           <Grid.Col span={{ xs: 12, md: 6 }}>
@@ -78,7 +78,7 @@ export function FormPersonalData({ onSubmit }) {
                   value={field.value}
                   onChange={field.onChange}
                   onBlur={field.onBlur}
-                  error={errors.gender?.message} 
+                  error={errors.gender?.message}
                 >
                   <Group my="xs">
                     <Radio value="male" label="Masculino" />
@@ -100,10 +100,13 @@ export function FormPersonalData({ onSubmit }) {
                   label="Nacionalidade"
                   placeholder="Selecione sua nacionalidade"
                   value={field.value}
-                  onChange={field.onChange}
+                  onChange={(value) => {
+                    field.onChange(value);
+                    trigger("nacionality");
+                  }}
                   onBlur={field.onBlur}
-                  error={errors.nacionality?.message} 
-                  onFocus={() => handleFocus("nacionality")} 
+                  error={errors.nacionality?.message}
+                  onFocus={() => handleFocus("nacionality")}
                 />
               )}
             />
@@ -113,8 +116,8 @@ export function FormPersonalData({ onSubmit }) {
               withAsterisk
               label="Naturalidade"
               {...register('placeBirth')}
-              error={errors.placeBirth?.message} 
-              onFocus={() => handleFocus("placeBirth")} 
+              error={errors.placeBirth?.message}
+              onFocus={() => handleFocus("placeBirth")}
             />
           </Grid.Col>
           <Grid.Col span={{ xs: 12, md: 3 }}>
@@ -128,8 +131,12 @@ export function FormPersonalData({ onSubmit }) {
                   placeholder="DD/MM/YYYY"
                   label="Data de Nascimento"
                   {...field}
-                  error={errors.birthday?.message} 
-                  onFocus={() => handleFocus("birthday")} 
+                  error={errors.birthday?.message}
+                  onFocus={() => handleFocus("birthday")}
+                  onChange={(value) => {
+                    field.onChange(value);
+                    trigger("birthday");
+                  }}
                 />
               )}
             />
@@ -139,8 +146,8 @@ export function FormPersonalData({ onSubmit }) {
               label="E-mail"
               placeholder="email@email.com"
               {...register('email')}
-              error={errors.email?.message} 
-              onFocus={() => handleFocus("email")} 
+              error={errors.email?.message}
+              onFocus={() => handleFocus("email")}
             />
           </Grid.Col>
           <Grid.Col span={{ xs: 12, md: 3 }}>
@@ -154,8 +161,8 @@ export function FormPersonalData({ onSubmit }) {
                   mask={['(', /[0-9]/, /[0-9]/, ')', ' ', /[0-9]/, /[0-9]/, /[0-9]/, /[0-9]/, '-', /[0-9]/, /[0-9]/, /[0-9]/, /[0-9]/]}
                   placeholder="(99) 9999-9999"
                   {...field}
-                  error={errors.telephone?.message} 
-                  onFocus={() => handleFocus("telephone")} 
+                  error={errors.telephone?.message}
+                  onFocus={() => handleFocus("telephone")}
                 />
               )}
             />
@@ -171,8 +178,8 @@ export function FormPersonalData({ onSubmit }) {
                   mask={['(', /[0-9]/, /[0-9]/, ')', ' ', /[0-9]/, /[0-9]/, /[0-9]/, /[0-9]/, /[0-9]/, '-', /[0-9]/, /[0-9]/, /[0-9]/, /[0-9]/]}
                   placeholder="(99) 99999-9999"
                   {...field}
-                  error={errors.cellPhone?.message} 
-                  onFocus={() => handleFocus("cellPhone")} 
+                  error={errors.cellPhone?.message}
+                  onFocus={() => handleFocus("cellPhone")}
                 />
               )}
             />
@@ -181,28 +188,28 @@ export function FormPersonalData({ onSubmit }) {
             <TextInput
               label="Website / Portifólio"
               {...register('website')}
-              error={errors.website?.message} 
-              onFocus={() => handleFocus("website")} 
+              error={errors.website?.message}
+              onFocus={() => handleFocus("website")}
             />
           </Grid.Col>
           <Grid.Col span={{ xs: 12, md: 4 }}>
             <TextInput
               label="LinkedIn"
               {...register('linkedIn')}
-              error={errors.linkedIn?.message} 
-              onFocus={() => handleFocus("linkedIn")} 
+              error={errors.linkedIn?.message}
+              onFocus={() => handleFocus("linkedIn")}
             />
           </Grid.Col>
           <Grid.Col span={{ xs: 12, md: 4 }}>
             <TextInput
               label="GitHub"
               {...register('gitHub')}
-              error={errors.gitHub?.message} 
-              onFocus={() => handleFocus("gitHub")} 
+              error={errors.gitHub?.message}
+              onFocus={() => handleFocus("gitHub")}
             />
           </Grid.Col>
         </Grid>
       </form>
     </div>
   );
-}
+};
