@@ -7,7 +7,6 @@ import { z } from "zod";
 import { useForm, Controller } from "react-hook-form";
 import { useEffect } from "react";
 
-
 const schema = z.object({
   fullName: z.string().min(1, "Nome completo é obrigatório"),
   gender: z.enum(["male", "female", "other"], { required_error: "Gênero é obrigatório" }),
@@ -33,27 +32,26 @@ export const FormPersonalData = ({ onValidation }) => {
     register,
     handleSubmit,
     control,
-    formState: { errors, isValid },
+    formState: { errors, isValid, touchedFields },
     trigger,
   } = useForm({
     resolver: zodResolver(schema),
-    mode: "onChange", 
+    mode: "onTouched",
   });
-
 
   useEffect(() => {
     onValidation(isValid); 
   }, [isValid, onValidation]);
 
-
- 
   const handleChange = async () => {
-    await trigger(); 
+    await trigger();
   };
 
   const onSubmit = (data) => {
     console.log("Dados pessoais:", data);
   };
+
+  const showError = (field) => touchedFields[field] && errors[field]?.message;
 
   return (
     <div>
@@ -65,8 +63,8 @@ export const FormPersonalData = ({ onValidation }) => {
               withAsterisk
               label="Nome Completo"
               placeholder="Digite seu nome completo"
-              {...register("fullName", { onChange: handleChange })} 
-              error={errors.fullName?.message}
+              {...register("fullName", { onChange: handleChange })}
+              error={showError("fullName")}
             />
           </Grid.Col>
           <Grid.Col span={{ xs: 12, md: 6 }}>
@@ -80,10 +78,10 @@ export const FormPersonalData = ({ onValidation }) => {
                   value={field.value}
                   onChange={(value) => {
                     field.onChange(value);
-                    handleChange(); 
+                    handleChange();
                   }}
                   onBlur={field.onBlur}
-                  error={errors.gender?.message}
+                  error={showError("gender")}
                 >
                   <Group my="xs">
                     <Radio value="male" label="Masculino" />
@@ -107,10 +105,10 @@ export const FormPersonalData = ({ onValidation }) => {
                   value={field.value}
                   onChange={(value) => {
                     field.onChange(value);
-                    handleChange(); 
+                    handleChange();
                   }}
                   onBlur={field.onBlur}
-                  error={errors.nacionality?.message}
+                  error={showError("nacionality")}
                 />
               )}
             />
@@ -119,8 +117,8 @@ export const FormPersonalData = ({ onValidation }) => {
             <TextInput
               withAsterisk
               label="Naturalidade"
-              {...register('placeBirth', { onChange: handleChange })} 
-              error={errors.placeBirth?.message}
+              {...register("placeBirth", { onChange: handleChange })}
+              error={showError("placeBirth")}
             />
           </Grid.Col>
           <Grid.Col span={{ xs: 12, md: 3 }}>
@@ -134,10 +132,10 @@ export const FormPersonalData = ({ onValidation }) => {
                   placeholder="DD/MM/YYYY"
                   label="Data de Nascimento"
                   {...field}
-                  error={errors.birthday?.message}
+                  error={showError("birthday")}
                   onChange={(value) => {
                     field.onChange(value);
-                    handleChange(); 
+                    handleChange();
                   }}
                 />
               )}
@@ -147,8 +145,8 @@ export const FormPersonalData = ({ onValidation }) => {
             <TextInput
               label="E-mail"
               placeholder="email@email.com"
-              {...register('email', { onChange: handleChange })} 
-              error={errors.email?.message}
+              {...register("email", { onChange: handleChange })}
+              error={showError("email")}
             />
           </Grid.Col>
           <Grid.Col span={{ xs: 12, md: 3 }}>
@@ -159,10 +157,25 @@ export const FormPersonalData = ({ onValidation }) => {
                 <TextInput
                   label="Telefone"
                   component={MaskedInput}
-                  mask={['(', /[0-9]/, /[0-9]/, ')', ' ', /[0-9]/, /[0-9]/, /[0-9]/, /[0-9]/, '-', /[0-9]/, /[0-9]/, /[0-9]/, /[0-9]/]}
+                  mask={[
+                    "(",
+                    /[0-9]/,
+                    /[0-9]/,
+                    ")",
+                    " ",
+                    /[0-9]/,
+                    /[0-9]/,
+                    /[0-9]/,
+                    /[0-9]/,
+                    "-",
+                    /[0-9]/,
+                    /[0-9]/,
+                    /[0-9]/,
+                    /[0-9]/,
+                  ]}
                   placeholder="(99) 9999-9999"
                   {...field}
-                  error={errors.telephone?.message}
+                  error={showError("telephone")}
                 />
               )}
             />
@@ -175,33 +188,49 @@ export const FormPersonalData = ({ onValidation }) => {
                 <TextInput
                   label="Celular / Whatsapp"
                   component={MaskedInput}
-                  mask={['(', /[0-9]/, /[0-9]/, ')', ' ', /[0-9]/, /[0-9]/, /[0-9]/, /[0-9]/, /[0-9]/, '-', /[0-9]/, /[0-9]/, /[0-9]/, /[0-9]/]}
+                  mask={[
+                    "(",
+                    /[0-9]/,
+                    /[0-9]/,
+                    ")",
+                    " ",
+                    /[0-9]/,
+                    /[0-9]/,
+                    /[0-9]/,
+                    /[0-9]/,
+                    /[0-9]/,
+                    "-",
+                    /[0-9]/,
+                    /[0-9]/,
+                    /[0-9]/,
+                    /[0-9]/,
+                  ]}
                   placeholder="(99) 99999-9999"
                   {...field}
-                  error={errors.cellPhone?.message}
+                  error={showError("cellPhone")}
                 />
               )}
             />
           </Grid.Col>
           <Grid.Col span={{ xs: 12, md: 4 }}>
             <TextInput
-              label="Website / Portifólio"
-              {...register('website', { onChange: handleChange })} 
-              error={errors.website?.message}
+              label="Website / Portfólio"
+              {...register("website", { onChange: handleChange })}
+              error={showError("website")}
             />
           </Grid.Col>
           <Grid.Col span={{ xs: 12, md: 4 }}>
             <TextInput
               label="LinkedIn"
-              {...register('linkedIn', { onChange: handleChange })} 
-              error={errors.linkedIn?.message}
+              {...register("linkedIn", { onChange: handleChange })}
+              error={showError("linkedIn")}
             />
           </Grid.Col>
           <Grid.Col span={{ xs: 12, md: 4 }}>
             <TextInput
               label="GitHub"
-              {...register('gitHub', { onChange: handleChange })} 
-              error={errors.gitHub?.message}
+              {...register("gitHub", { onChange: handleChange })}
+              error={showError("gitHub")}
             />
           </Grid.Col>
         </Grid>
