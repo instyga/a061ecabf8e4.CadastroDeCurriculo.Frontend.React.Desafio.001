@@ -20,7 +20,7 @@ const baseSchema = z.object({
     message: "A data de início deve ser anterior à data atual",
   }),
   endDate: z.coerce.date().optional(),
-  description: z.string().min(10, "A descrição é obrigatória e deve conter mínimo 10 caracteres"),
+  description: z.string().min(10, "A descrição é obrigatória e deve conter no mínimo 10 caracteres"),
   isCurrentJob: z.boolean().optional(),
 });
 
@@ -34,29 +34,33 @@ const schema = baseSchema.refine((data) => {
   message: "A data de saída deve ser posterior à data de início",
 });
 
-export function FormProfessionalExperiences({ onAddExperience }) {
+export function FormProfessionalExperiences({ onAddExperience, setFormValid }) {
   const {
     register,
     handleSubmit,
     control,
     reset,
+    watch,
     formState: { errors, isValid },
   } = useForm({
     resolver: zodResolver(schema),
-    mode: "onChange",
+    mode: "onBlur", 
     defaultValues: {
       isCurrentJob: false,
     },
   });
+
+  const isCurrentJob = watch("isCurrentJob"); 
 
   const onSubmitHandler = (data) => {
     const experience = {
       ...data,
       id: uuidv4(),
       startDate: data.startDate.toISOString(),
-      endDate: data.isCurrentJob ? "Presente" : data.endDate?.toISOString(),
+      endDate: isCurrentJob ? "Presente" : data.endDate?.toISOString(),
     };
     onAddExperience(experience);
+    setFormValid(true); 
     reset();
   };
 
@@ -115,22 +119,21 @@ export function FormProfessionalExperiences({ onAddExperience }) {
                   label="Data de saída"
                   {...field}
                   error={errors.endDate?.message}
+                  disabled={isCurrentJob} 
                 />
               )}
             />
           </Grid.Col>
           <Grid.Col span={{ xs: 12, md: 6 }} align="flex-end">
-            <Controller
-              name="isCurrentJob"
-              control={control}
-              render={({ field }) => (
-                <Checkbox
-                  {...field}
-                  label="Ainda trabalho nesta empresa"
-                  checked={field.value}
-                  onChange={(event) => field.onChange(event.currentTarget.checked)}
-                />
-              )}
+            <Checkbox
+              {...register("isCurrentJob")}
+              label="Ainda trabalho nesta empresa"
+              onChange={(e) => {
+                register("isCurrentJob").onChange(e); 
+                if (e.target.checked) {
+                  reset({ ...watch(), endDate: undefined }); 
+                }
+              }}
             />
           </Grid.Col>
           <Grid.Col span={{ xs: 12, md: 12 }}>
@@ -145,6 +148,11 @@ export function FormProfessionalExperiences({ onAddExperience }) {
         </Grid>
         <Button type="submit" disabled={!isValid}>Adicionar Experiência</Button>
       </Fieldset>
+      {Object.keys(errors).length > 0 && (
+        <div style={{ color: "red", marginTop: "10px" }}>
+          Preencha todos os campos obrigatórios corretamente antes de adicionar a experiência.
+        </div>
+      )}
     </form>
   );
 }
