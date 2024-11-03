@@ -4,12 +4,12 @@ import { FormPersonalData } from "../forms/personal-data";
 import { FormProfessionalExperiences } from "../forms/professional-experiences";
 import { useState } from "react";
 import { ProfessionalExperiencesList } from "../forms/professional-experiences-list";
-import { ScholarshipList } from "../forms/scholarship-list"; // Importando a lista de bolsas
-import { FormScholarshipDetails } from "../forms/scholarship-details"; // Importando os detalhes da bolsa
+import { ScholarshipList } from "../forms/scholarship-list"; 
+import { FormScholarshipDetails } from "../forms/scholarship-details"; 
 
 const Home = ({ currentStep, setIsNextStepAllowed }) => {
   const [experiences, setExperiences] = useState([]);
-  const [scholarships, setScholarships] = useState([]); // Estado para gerenciar bolsas
+  const [scholarships, setScholarships] = useState([]); 
 
   const handleAddExperience = (experience) => {
     setExperiences((prev) => [...prev, experience]);
@@ -39,7 +39,7 @@ const Home = ({ currentStep, setIsNextStepAllowed }) => {
         </>
       )}
 
-      {/* Etapa 3: Lista de Bolsas e Detalhes da Bolsa */}
+    
       {currentStep === 2 && (
         <>
           <FormScholarshipDetails onAddScholarship={handleAddScholarship} />

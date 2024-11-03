@@ -8,20 +8,20 @@ import { useForm, Controller } from "react-hook-form";
 import { useEffect } from "react";
 
 const schema = z.object({
-  fullName: z.string().min(1, "Nome completo é obrigatório"),
-  gender: z.enum(["male", "female", "other"], { required_error: "Gênero é obrigatório" }),
-  nacionality: z.string().min(1, "Nacionalidade é obrigatória"),
-  placeBirth: z.string().min(1, "Naturalidade é obrigatória"),
+  fullName: z.string().min(1, "Campo obrigatório"),
+  gender: z.enum(["male", "female", "other"], { required_error: "Campo obrigatório" }),
+  nacionality: z.string().min(1, "Campo obrigatório"),
+  placeBirth: z.string().min(1, "Campo obrigatório"),
   birthday: z.date()
     .refine(date => !isNaN(date.getTime()), {
-      message: "Data de nascimento é obrigatória",
+      message: "Data inválida",
     })
     .refine(date => date < new Date(), {
       message: "A data de nascimento deve ser anterior a hoje.",
     }),
-  email: z.string().email("Formato de e-mail inválido"),
-  telephone: z.string().min(1, "Telefone é obrigatório"),
-  cellPhone: z.string().min(1, "Celular é obrigatório"),
+  email: z.string().email("E-mail inválido"),
+  telephone: z.string().min(1, "Número invalido"),
+  cellPhone: z.string().min(1, "Número invealido"),
   website: z.string().optional(),
   linkedIn: z.string().optional(),
   gitHub: z.string().optional(),

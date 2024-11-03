@@ -1,125 +1,131 @@
-// import {
-//   Button,
-//   Checkbox,
-//   Fieldset,
-//   Grid,
-//   Group,
-//   TextInput,
-// } from "@mantine/core";
-// import { FormSectionTitle } from "../components/form-section-title";
-// import { DateInput } from "@mantine/dates";
-
-// export const FormScholarshipDetails = () => {
-//   return (
-//     <>
-//       <Fieldset
-//         legend={
-//           <FormSectionTitle
-//             step={3}
-//             title="Escolaridade"
-//             caption="Lista de cursos e graduações"
-//           />
-//         }
-//       >
-//         <Grid>
-//           <Grid.Col span={{ xs: 12, md: 6 }}>
-//             <TextInput label="Instituição" />
-//           </Grid.Col>
-//           <Grid.Col span={{ xs: 12, md: 6 }}>
-//             <TextInput label="Curso" />
-//           </Grid.Col>
-//           <Grid.Col span={{ xs: 12, md: 3 }}>
-//             <DateInput placeholder="DD/MM/YYYY" label="Data de início" />
-//           </Grid.Col>
-//           <Grid.Col span={{ xs: 12, md: 3 }}>
-//             <DateInput placeholder="DD/MM/YYYY" label="Data do término" />
-//           </Grid.Col>
-//           <Grid.Col span={{ xs: 12, md: 6 }} align="flex-end">
-//             <Checkbox.Group label="Situação">
-//               <Group my="xs">
-//                 <Checkbox value="actual" label="Ainda estou cursando" />
-//               </Group>
-//             </Checkbox.Group>
-//           </Grid.Col>
-//           <Grid.Col span={{ xs: 12, md: 12 }}>
-//             <Button variant="outline">Adicionar escolaridade</Button>
-//           </Grid.Col>
-//         </Grid>
-//       </Fieldset>
-//     </>
-//   );
-// };
-
-import {
-  Button,
-  Checkbox,
-  Fieldset,
-  Grid,
-  Group,
-  TextInput,
-} from "@mantine/core";
+import { Grid, TextInput, Button, Fieldset } from "@mantine/core";
+import { useForm, Controller } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { FormSectionTitle } from "../components/form-section-title";
 import { DateInput } from "@mantine/dates";
-import { useForm } from '@mantine/form';
 
-export const FormScholarshipDetails = ({ onAddScholarship }) => {
-  const form = useForm({
-    initialValues: {
-      schoolName: '',
-      course: '',
-      startDate: null,
-      endDate: null,
-      isStillStudying: false,
-    },
+const schema = z.object({
+  courseName: z.string().min(1, "Campo obrigatórioN"),
+  institution: z.string().min(1, "Campo brigatório"),
+  startDate: z.coerce.date().refine((date) => date <= new Date(), {
+    message: "A data de início deve ser anterior à data atual",
+  }),
+  endDate: z.coerce.date().optional(),
+  description: z.string().min(10, "Campo obrigatório"),
+});
+
+export function FormScholarshipDetails({ onAddScholarship }) {
+  const {
+    register,
+    handleSubmit,
+    control,
+    reset,
+    formState: { errors, isValid },
+  } = useForm({
+    resolver: zodResolver(schema),
+    mode: "onBlur",
   });
 
-  const handleSubmit = (values) => {
+  const onSubmitHandler = (data) => {
     const scholarship = {
-      id: Date.now(), // Gerando um ID único simples
-      schoolName: values.schoolName,
-      course: values.course,
-      startDate: values.startDate,
-      endDate: values.isStillStudying ? 'Ainda cursando' : values.endDate,
+      ...data,
+      startDate: data.startDate.toISOString(),
+      endDate: data.endDate ? data.endDate.toISOString() : null,
     };
     onAddScholarship(scholarship);
-    form.reset(); // Limpa o formulário após a adição
+    reset();
   };
 
   return (
-    <form onSubmit={form.onSubmit(handleSubmit)}>
+    <form onSubmit={handleSubmit(onSubmitHandler)}>
       <Fieldset
         legend={
           <FormSectionTitle
             step={3}
-            title="Escolaridade"
-            caption="Lista de cursos e graduações"
+            title="Detalhes da Bolsa"
+            caption="Informações sobre suas bolsas de estudo"
           />
         }
       >
         <Grid>
           <Grid.Col span={{ xs: 12, md: 6 }}>
-            <TextInput label="Instituição" {...form.getInputProps('schoolName')} />
+            <TextInput
+              label="Nome do Curso"
+              withAsterisk
+              {...register("courseName")}
+              error={errors.courseName?.message}
+            />
           </Grid.Col>
           <Grid.Col span={{ xs: 12, md: 6 }}>
-            <TextInput label="Curso" {...form.getInputProps('course')} />
+            <TextInput
+              label="Instituição"
+              withAsterisk
+              {...register("institution")}
+              error={errors.institution?.message}
+            />
           </Grid.Col>
           <Grid.Col span={{ xs: 12, md: 3 }}>
-            <DateInput placeholder="DD/MM/YYYY" label="Data de início" {...form.getInputProps('startDate')} />
+            <Controller
+              name="startDate"
+              control={control}
+              render={({ field }) => (
+                <DateInput
+                  withAsterisk
+                  valueFormat="DD/MM/YYYY"
+                  placeholder="DD/MM/YYYY"
+                  label="Data de Início"
+                  {...field}
+                  error={errors.startDate?.message}
+                />
+              )}
+            />
           </Grid.Col>
-          <Grid.Col span={{ xs: 12, md: 3 }}>
-            <DateInput placeholder="DD/MM/YYYY" label="Data do término" {...form.getInputProps('endDate')} />
-          </Grid.Col>
-          <Grid.Col span={{ xs: 12, md: 6 }} align="flex-end">
+          {/* <Grid.Col span={{ xs: 12, md: 6 }} align="flex-end">
+//             <Checkbox.Group label="Situação">
+//               <Group my="xs">
+//                 <Checkbox value="actual" label="Ainda estou cursando" />
+//               </Group>
+//             </Checkbox.Group>
+//           </Grid.Col> */}
+          {/* <Grid.Col span={{ xs: 12, md: 6 }} align="flex-end">
             <Checkbox
+              {...register("actual")}
               label="Ainda estou cursando"
-              {...form.getInputProps('isStillStudying', { type: 'checkbox' })}
+              onChange={(e) => {
+                register("isActual").onChange(e); 
+                if (e.target.checked) {
+                  reset({ ...watch(), endDate: undefined }); 
+                }
+              }}
+            />
+          </Grid.Col> */}
+          <Grid.Col span={{ xs: 12, md: 3 }}>
+            <Controller
+              name="endDate"
+              control={control}
+              render={({ field }) => (
+                <DateInput
+                  valueFormat="DD/MM/YYYY"
+                  placeholder="DD/MM/YYYY"
+                  label="Data de Saída"
+                  {...field}
+                  error={errors.endDate?.message}
+                />
+              )}
             />
           </Grid.Col>
           <Grid.Col span={{ xs: 12, md: 12 }}>
-            <Button type="submit" variant="outline">Adicionar escolaridade</Button>
+            <TextInput
+              withAsterisk
+              label="Descrição"
+              {...register("description")}
+              error={errors.description?.message}
+            />
           </Grid.Col>
         </Grid>
+        <Button type="submit" disabled={!isValid}>Adicionar Bolsa</Button>
       </Fieldset>
     </form>
   );
-};
+}

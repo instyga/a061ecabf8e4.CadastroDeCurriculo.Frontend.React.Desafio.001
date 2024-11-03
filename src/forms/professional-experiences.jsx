@@ -14,13 +14,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { v4 as uuidv4 } from "uuid";
 
 const baseSchema = z.object({
-  companyName: z.string().min(1, "Nome da empresa é obrigatório"),
-  jobTitle: z.string().min(1, "Cargo é obrigatório"),
+  companyName: z.string().min(1, "Campo obrigatório"),
+  jobTitle: z.string().min(1, "Campo obrigatório"),
   startDate: z.coerce.date().refine((date) => date <= new Date(), {
-    message: "A data de início deve ser anterior à data atual",
+    message: "Data inválida",
   }),
   endDate: z.coerce.date().optional(),
-  description: z.string().min(10, "A descrição é obrigatória e deve conter no mínimo 10 caracteres"),
+  description: z.string().min(10, "Campo obrigatório"),
   isCurrentJob: z.boolean().optional(),
 });
 
@@ -31,7 +31,7 @@ const schema = baseSchema.refine((data) => {
   return true;
 }, {
   path: ["endDate"],
-  message: "A data de saída deve ser posterior à data de início",
+  message: "Data inválida",
 });
 
 export function FormProfessionalExperiences({ onAddExperience, setFormValid }) {
