@@ -1,18 +1,28 @@
-import { Grid, TextInput, Button, Fieldset } from "@mantine/core";
+import { Grid, TextInput, Button, Fieldset, Checkbox } from "@mantine/core";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FormSectionTitle } from "../components/form-section-title";
 import { DateInput } from "@mantine/dates";
+import { v4 as uuidv4 } from 'uuid';
 
 const schema = z.object({
-  courseName: z.string().min(1, "Campo obrigatórioN"),
-  institution: z.string().min(1, "Campo brigatório"),
+  courseName: z.string().min(1, "Campo obrigatório"),
+  institution: z.string().min(1, "Campo obrigatório"),
   startDate: z.coerce.date().refine((date) => date <= new Date(), {
     message: "A data de início deve ser anterior à data atual",
   }),
   endDate: z.coerce.date().optional(),
   description: z.string().min(10, "Campo obrigatório"),
+  isActual: z.boolean().optional(),
+}).refine((data) => {
+  if (data.endDate && data.startDate) {
+    return data.endDate >= data.startDate;
+  }
+  return true;
+}, {
+  path: ["endDate"],
+  message: "Data inválida",
 });
 
 export function FormScholarshipDetails({ onAddScholarship }) {
@@ -21,6 +31,7 @@ export function FormScholarshipDetails({ onAddScholarship }) {
     handleSubmit,
     control,
     reset,
+    watch,
     formState: { errors, isValid },
   } = useForm({
     resolver: zodResolver(schema),
@@ -30,12 +41,15 @@ export function FormScholarshipDetails({ onAddScholarship }) {
   const onSubmitHandler = (data) => {
     const scholarship = {
       ...data,
+      id: uuidv4(),
       startDate: data.startDate.toISOString(),
-      endDate: data.endDate ? data.endDate.toISOString() : null,
+      endDate: data.isActual ? null : data.endDate ? data.endDate.toISOString() : null,
     };
     onAddScholarship(scholarship);
-    reset();
+    reset(); 
   };
+
+  const isCurrentlyEnrolled = watch("isActual");
 
   return (
     <form onSubmit={handleSubmit(onSubmitHandler)}>
@@ -81,25 +95,21 @@ export function FormScholarshipDetails({ onAddScholarship }) {
               )}
             />
           </Grid.Col>
-          {/* <Grid.Col span={{ xs: 12, md: 6 }} align="flex-end">
-//             <Checkbox.Group label="Situação">
-//               <Group my="xs">
-//                 <Checkbox value="actual" label="Ainda estou cursando" />
-//               </Group>
-//             </Checkbox.Group>
-//           </Grid.Col> */}
-          {/* <Grid.Col span={{ xs: 12, md: 6 }} align="flex-end">
+          <Grid.Col span={{ xs: 12, md: 6 }} align="flex-end">
             <Checkbox
-              {...register("actual")}
+              {...register("isActual")}
               label="Ainda estou cursando"
+              checked={isCurrentlyEnrolled}
               onChange={(e) => {
-                register("isActual").onChange(e); 
-                if (e.target.checked) {
-                  reset({ ...watch(), endDate: undefined }); 
+                const checked = e.target.checked;
+                register("isActual").onChange(checked);
+                
+                if (checked) {
+                  reset({ ...watch(), endDate: undefined });
                 }
               }}
             />
-          </Grid.Col> */}
+          </Grid.Col>
           <Grid.Col span={{ xs: 12, md: 3 }}>
             <Controller
               name="endDate"
@@ -111,10 +121,12 @@ export function FormScholarshipDetails({ onAddScholarship }) {
                   label="Data de Saída"
                   {...field}
                   error={errors.endDate?.message}
+                  disabled={isCurrentlyEnrolled} 
                 />
               )}
-            />
-          </Grid.Col>
+            /> 
+         </Grid.Col>
+            
           <Grid.Col span={{ xs: 12, md: 12 }}>
             <TextInput
               withAsterisk
@@ -126,6 +138,11 @@ export function FormScholarshipDetails({ onAddScholarship }) {
         </Grid>
         <Button type="submit" disabled={!isValid}>Adicionar Bolsa</Button>
       </Fieldset>
+      {Object.keys(errors).length > 0 && (
+        <div style={{ color: "red", marginTop: "10px" }}>
+          Preencha todos os campos obrigatórios corretamente antes de adicionar a bolsa.
+        </div>
+      )}
     </form>
   );
 }
