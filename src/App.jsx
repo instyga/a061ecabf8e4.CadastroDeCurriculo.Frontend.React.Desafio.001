@@ -33,7 +33,7 @@ const App = () => {
       </AppShell.Header>
       <AppShell.Main>
         <Home
-          currentStep={currentStep}
+          currentStep={currentStep} onFormValidChange={setIsNextStepAllowed} 
           onExperienceAdded={handleExperienceAdded}
           professionalExperiences={professionalExperiences}
           setIsNextStepAllowed={setIsNextStepAllowed} 
@@ -53,3 +53,4 @@ const App = () => {
 };
 
 export default App;
+

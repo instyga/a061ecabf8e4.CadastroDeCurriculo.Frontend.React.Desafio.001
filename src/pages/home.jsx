@@ -42,7 +42,7 @@ const Home = ({ currentStep, setIsNextStepAllowed }) => {
     
       {currentStep === 2 && (
         <>
-          <FormScholarshipDetails onAddScholarship={handleAddScholarship} />
+          <FormScholarshipDetails onAddScholarship={handleAddScholarship} onFormValidChange={setIsNextStepAllowed} />
           <ScholarshipList scholarships={scholarships} />
         </>
       )}
@@ -51,3 +51,4 @@ const Home = ({ currentStep, setIsNextStepAllowed }) => {
 };
 
 export default Home;
+

@@ -31,6 +31,7 @@ export const FormPersonalData = ({ onValidation }) => {
   const {
     register,
     handleSubmit,
+    getValues,
     control,
     formState: { errors, isValid, touchedFields },
     trigger,
@@ -43,8 +44,11 @@ export const FormPersonalData = ({ onValidation }) => {
     onValidation(isValid); 
   }, [isValid, onValidation]);
 
-  const handleChange = async () => {
+  const handleChange = async (event) => {
+    const values = getValues();
+    console.log(values);
     await trigger();
+   
   };
 
   const onSubmit = (data) => {
@@ -55,7 +59,12 @@ export const FormPersonalData = ({ onValidation }) => {
 
   return (
     <div>
-      <FormSectionTitle step={1} title="Dados Pessoais" caption="Informações Pessoais de contato" />
+      <FormSectionTitle 
+      step={1} 
+      title="Dados Pessoais" 
+      caption="Informações Pessoais de contato"
+      titleOrder={2}
+      />
       <form onSubmit={handleSubmit(onSubmit)}>
         <Grid>
           <Grid.Col span={{ xs: 12, md: 6 }}>

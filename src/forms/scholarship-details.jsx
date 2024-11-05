@@ -1,5 +1,5 @@
 import { Grid, TextInput, Button, Fieldset, Checkbox } from "@mantine/core";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller} from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FormSectionTitle } from "../components/form-section-title";
@@ -25,7 +25,7 @@ const schema = z.object({
   message: "Data inválida",
 });
 
-export function FormScholarshipDetails({ onAddScholarship }) {
+export function FormScholarshipDetails({ onAddScholarship, onFormValidChange }) {
   const {
     register,
     handleSubmit,
@@ -38,6 +38,7 @@ export function FormScholarshipDetails({ onAddScholarship }) {
     mode: "onBlur",
   });
 
+
   const onSubmitHandler = (data) => {
     const scholarship = {
       ...data,
@@ -45,11 +46,21 @@ export function FormScholarshipDetails({ onAddScholarship }) {
       startDate: data.startDate.toISOString(),
       endDate: data.isActual ? null : data.endDate ? data.endDate.toISOString() : null,
     };
+    console.log("Submitting scholarship data:", scholarship);
+
     onAddScholarship(scholarship);
     reset(); 
+    
+    if (typeof onFormValidChange === "function") {
+      onFormValidChange(isValid);
+    } else {
+      console.error("onFormValidChange não é uma função");
+    }
   };
 
   const isCurrentlyEnrolled = watch("isActual");
+
+  const descriptionFilled = watch("description")?.length > 0;
 
   return (
     <form onSubmit={handleSubmit(onSubmitHandler)}>
@@ -59,6 +70,7 @@ export function FormScholarshipDetails({ onAddScholarship }) {
             step={3}
             title="Detalhes da Bolsa"
             caption="Informações sobre suas bolsas de estudo"
+            titleOrder={3} 
           />
         }
       >
@@ -99,13 +111,12 @@ export function FormScholarshipDetails({ onAddScholarship }) {
             <Checkbox
               {...register("isActual")}
               label="Ainda estou cursando"
-              checked={isCurrentlyEnrolled}
               onChange={(e) => {
-                const checked = e.target.checked;
-                register("isActual").onChange(checked);
+                const {checked} = e.target;
+                register("isActual").onChange(e);
                 
                 if (checked) {
-                  reset({ ...watch(), endDate: undefined });
+                  reset({ ...watch(), endDate: undefined }); 
                 }
               }}
             />
@@ -121,12 +132,11 @@ export function FormScholarshipDetails({ onAddScholarship }) {
                   label="Data de Saída"
                   {...field}
                   error={errors.endDate?.message}
-                  disabled={isCurrentlyEnrolled} 
+                  disabled={isCurrentlyEnrolled}  
                 />
               )}
-            /> 
-         </Grid.Col>
-            
+            />
+          </Grid.Col> 
           <Grid.Col span={{ xs: 12, md: 12 }}>
             <TextInput
               withAsterisk

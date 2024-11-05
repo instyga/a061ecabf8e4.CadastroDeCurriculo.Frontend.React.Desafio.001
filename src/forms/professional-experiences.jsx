@@ -13,6 +13,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { v4 as uuidv4 } from "uuid";
 
+
 const baseSchema = z.object({
   companyName: z.string().min(1, "Campo obrigatório"),
   jobTitle: z.string().min(1, "Campo obrigatório"),
@@ -24,6 +25,7 @@ const baseSchema = z.object({
   isCurrentJob: z.boolean().optional(),
 });
 
+
 const schema = baseSchema.refine((data) => {
   if (data.endDate && data.startDate) {
     return data.endDate >= data.startDate;
@@ -34,7 +36,8 @@ const schema = baseSchema.refine((data) => {
   message: "Data inválida",
 });
 
-export function FormProfessionalExperiences({ onAddExperience, setFormValid }) {
+
+export function FormProfessionalExperiences({ onAddExperience }) {
   const {
     register,
     handleSubmit,
@@ -44,14 +47,15 @@ export function FormProfessionalExperiences({ onAddExperience, setFormValid }) {
     formState: { errors, isValid },
   } = useForm({
     resolver: zodResolver(schema),
-    mode: "onBlur", 
+    mode: "onBlur",
     defaultValues: {
       isCurrentJob: false,
     },
   });
 
-  const isCurrentJob = watch("isCurrentJob"); 
+  const isCurrentJob = watch("isCurrentJob");
 
+ 
   const onSubmitHandler = (data) => {
     const experience = {
       ...data,
@@ -59,9 +63,14 @@ export function FormProfessionalExperiences({ onAddExperience, setFormValid }) {
       startDate: data.startDate.toISOString(),
       endDate: isCurrentJob ? "Presente" : data.endDate?.toISOString(),
     };
-    onAddExperience(experience);
-    setFormValid(true); 
-    reset();
+
+    console.log('Dados da experiência a serem adicionados:', experience);
+
+   
+    if (onAddExperience) {
+      onAddExperience(experience);
+    }
+    reset(); 
   };
 
   return (
@@ -72,6 +81,7 @@ export function FormProfessionalExperiences({ onAddExperience, setFormValid }) {
             step={2}
             title="Experiência profissional"
             caption="Lista de experiências profissionais"
+            titleOrder={3}
           />
         }
       >
@@ -119,7 +129,7 @@ export function FormProfessionalExperiences({ onAddExperience, setFormValid }) {
                   label="Data de saída"
                   {...field}
                   error={errors.endDate?.message}
-                  disabled={isCurrentJob} 
+                  disabled={isCurrentJob}
                 />
               )}
             />
@@ -129,9 +139,10 @@ export function FormProfessionalExperiences({ onAddExperience, setFormValid }) {
               {...register("isCurrentJob")}
               label="Ainda trabalho nesta empresa"
               onChange={(e) => {
-                register("isCurrentJob").onChange(e); 
-                if (e.target.checked) {
-                  reset({ ...watch(), endDate: undefined }); 
+                const { checked } = e.target;
+                register("isCurrentJob").onChange(e);
+                if (checked) {
+                  reset({ ...watch(), endDate: undefined });
                 }
               }}
             />

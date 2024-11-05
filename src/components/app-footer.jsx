@@ -30,3 +30,4 @@ export const AppFooter = ({ onNext, onBack, isNextStepAllowed, currentStep, tota
   );
 };
 
+
