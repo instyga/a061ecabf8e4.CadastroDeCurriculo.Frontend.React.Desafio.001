@@ -25,11 +25,9 @@ const Home = ({ currentStep, setIsNextStepAllowed }) => {
   useEffect(() => {
     console.log(`Current step: ${currentStep}`);
     if (currentStep === 0) {
-      console.log('Form: Personal Data');
-    } else if (currentStep === 1) {
-      console.log('Form: Professional Experiences');
+    } else if (currentStep === 1) { 
     } else if (currentStep === 2) {
-      console.log('Form: Scholarship Details');
+    
     }
   }, [currentStep]);
 
