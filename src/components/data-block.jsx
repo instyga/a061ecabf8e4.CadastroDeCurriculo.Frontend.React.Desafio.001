@@ -7,7 +7,9 @@ export const DataBlock = ({ label, value }) => {
       <Text fw={700} size="sm" c="dark">
         {label}
       </Text>
-      <Text fw={400}>{typeof value === "object" ? value.toString() : value}</Text>
+      <Text fw={400}>
+        {value instanceof Date ? value.toLocaleDateString() : value}
+      </Text>
     </Stack>
   );
 };
@@ -17,6 +19,6 @@ DataBlock.propTypes = {
   value: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.number,
-    PropTypes.instanceOf(Date), 
+    PropTypes.instanceOf(Date),
   ]).isRequired,
 };

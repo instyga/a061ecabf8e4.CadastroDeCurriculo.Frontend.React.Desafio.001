@@ -11,18 +11,17 @@ import debounce from "lodash.debounce";
 const schema = z.object({
   fullName: z.string().min(1, "Campo obrigatório"),
   gender: z.enum(["male", "female", "other"], { required_error: "Campo obrigatório" }),
-  nacionality: z.string().min(1, "Campo obrigatório"),
+  nacionality: z.enum(["Brasileiro(a)", "Estrangeiro(a)"], { required_error: "Campo obrigatório" }),
   placeBirth: z.string().min(1, "Campo obrigatório"),
-  birthday: z.date()
-    .refine(date => !isNaN(date.getTime()), {
-      message: "Data inválida",
+  birthday: z.preprocess((input) => new Date(input), z.date().refine((date) => {
+      return !isNaN(date.getTime()) && date < new Date();
+    }, {
+      message: "Data inválida ou posterior a hoje.",
     })
-    .refine(date => date < new Date(), {
-      message: "A data de nascimento deve ser anterior a hoje.",
-    }),
+  ),
   email: z.string().email("E-mail inválido"),
-  telephone: z.string().min(1, "Número invalido"),
-  cellPhone: z.string().min(1, "Número invalido"),
+  telephone: z.coerce.string().min(14, "Número inválido"),
+  cellPhone: z.coerce.string().min(15, "Número inválido"),
   website: z.string().optional(),
   linkedIn: z.string().optional(),
   gitHub: z.string().optional(),
@@ -39,7 +38,6 @@ export const FormPersonalData = ({ onValidation }) => {
     mode: "onTouched",
   });
 
-  
   const debouncedValidation = useCallback(
     debounce((isValid) => {
       console.log("Validação do formulário:", isValid);
@@ -48,11 +46,10 @@ export const FormPersonalData = ({ onValidation }) => {
     [onValidation]
   );
 
-  
   const formValues = useWatch({ control });
 
   useEffect(() => {
-    debouncedValidation(isValid);  
+    debouncedValidation(isValid);
   }, [formValues, isValid, debouncedValidation]);
 
   const onSubmit = (data) => {
@@ -158,6 +155,7 @@ export const FormPersonalData = ({ onValidation }) => {
               name="telephone"
               render={({ field }) => (
                 <TextInput
+                  withAsterisk
                   label="Telefone"
                   component={MaskedInput}
                   mask={[
@@ -183,12 +181,14 @@ export const FormPersonalData = ({ onValidation }) => {
               )}
             />
           </Grid.Col>
+
           <Grid.Col span={{ xs: 12, md: 3 }}>
             <Controller
               control={control}
               name="cellPhone"
               render={({ field }) => (
                 <TextInput
+                  withAsterisk
                   label="Celular / Whatsapp"
                   component={MaskedInput}
                   mask={[
