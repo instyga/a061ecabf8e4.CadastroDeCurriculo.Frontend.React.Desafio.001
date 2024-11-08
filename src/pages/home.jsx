@@ -2,23 +2,61 @@ import { Container } from "@mantine/core";
 import { ExperimentalFormAlert } from "../components/experimental-form-alert";
 import { FormPersonalData } from "../forms/personal-data";
 import { FormProfessionalExperiences } from "../forms/professional-experiences";
-import { FormScholarshipDetails } from "../forms/scholarship-details";
+import { useState } from "react";
 import { ProfessionalExperiencesList } from "../forms/professional-experiences-list";
-import { ScholarshipList } from "../forms/scholarship-list";
+import { ScholarshipList } from "../forms/scholarship-list"; 
+import { FormScholarshipDetails } from "../forms/scholarship-details"; 
+import { useEffect } from 'react';
 
-export const Home = () => {
+const Home = ({ currentStep, setIsNextStepAllowed }) => {
+  const [experiences, setExperiences] = useState([]);
+  const [scholarships, setScholarships] = useState([]);
+
+  const handleAddExperience = (experience) => {
+    setExperiences((prev) => [...prev, experience]);
+    setIsNextStepAllowed(true);
+  };
+
+  const handleAddScholarship = (scholarship) => {
+    setScholarships((prev) => [...prev, scholarship]);
+    setIsNextStepAllowed(true);
+  };
+
+  useEffect(() => {
+    console.log(`Current step: ${currentStep}`);
+    if (currentStep === 0) {
+    } else if (currentStep === 1) { 
+    } else if (currentStep === 2) {
+    
+    }
+  }, [currentStep]);
+
   return (
-    <Container size="lg">
+    <Container>
       <ExperimentalFormAlert />
-      <FormPersonalData />
-      <>
-        <FormProfessionalExperiences />
-        <ProfessionalExperiencesList experiences={[]} />
-      </>
-      <>
-        <FormScholarshipDetails />
-        <ScholarshipList scholarships={[]} />
-      </>
+      
+      {currentStep === 0 && (
+        <FormPersonalData onValidation={setIsNextStepAllowed} />
+      )}
+      
+      {currentStep === 1 && (
+        <>
+          <FormProfessionalExperiences 
+            onValidation={setIsNextStepAllowed} 
+            onAddExperience={handleAddExperience} 
+          />
+          <ProfessionalExperiencesList experiences={experiences} />
+        </>
+      )}
+
+      {currentStep === 2 && (
+        <>
+          <FormScholarshipDetails onAddScholarship={handleAddScholarship} onFormValidChange={setIsNextStepAllowed} />
+          <ScholarshipList scholarships={scholarships} />
+        </>
+      )}
     </Container>
   );
 };
+
+export default Home;

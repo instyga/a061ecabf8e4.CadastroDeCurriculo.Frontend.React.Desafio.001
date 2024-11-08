@@ -1,4 +1,4 @@
-import { PropTypes } from "prop-types";
+import {PropTypes} from "prop-types"; 
 import {
   Accordion,
   Card,
@@ -11,7 +11,7 @@ import {
 import { CustomAccordionControl } from "../components/custom-accordion-control";
 import { DataBlock } from "../components/data-block";
 
-export const ScholarshipList = ({ scholarships = [] }) => {
+export const ScholarshipList = ({ scholarships }) => {
   return (
     <Card withBorder mt="md">
       <Stack>
@@ -25,26 +25,26 @@ export const ScholarshipList = ({ scholarships = [] }) => {
         )}
         <Accordion chevronPosition="left" variant="contained">
           {scholarships.map((scholarship) => (
-            <Accordion.Item value={scholarship.value} key={scholarship.id}>
+            <Accordion.Item key={scholarship.id} value={scholarship.id.toString()}>
               <CustomAccordionControl>
-                <DataBlock label="Instituição" value={scholarship.schoolName} />
+                <DataBlock label="Instituição" value={scholarship.institution || "N/A"} /> 
               </CustomAccordionControl>
               <Accordion.Panel>
                 <Divider mb="xl" />
                 <Grid>
                   <Grid.Col span={{ xs: 12, md: 6 }}>
-                    <DataBlock label="Cargo" value={scholarship.course} />
+                    <DataBlock label="Cargo" value={scholarship.courseName || "N/A"} /> 
                   </Grid.Col>
                   <Grid.Col span={{ xs: 12, md: 3 }}>
                     <DataBlock
                       label="Data de início"
-                      value={scholarship.startDate}
+                      value={scholarship.startDate || "N/A"} 
                     />
                   </Grid.Col>
                   <Grid.Col span={{ xs: 12, md: 3 }}>
                     <DataBlock
                       label="Data de término"
-                      value={scholarship.endDate}
+                      value={scholarship.endDate || "N/A"} 
                     />
                   </Grid.Col>
                 </Grid>
@@ -60,12 +60,11 @@ export const ScholarshipList = ({ scholarships = [] }) => {
 ScholarshipList.propTypes = {
   scholarships: PropTypes.arrayOf(
     PropTypes.shape({
-      id: PropTypes.number.isRequired,
-      value: PropTypes.string.isRequired,
-      schoolName: PropTypes.string.isRequired,
-      course: PropTypes.string.isRequired,
+      id: PropTypes.string.isRequired,
+      institution: PropTypes.string.isRequired,
+      courseName: PropTypes.string.isRequired,
       startDate: PropTypes.string.isRequired,
-      endDate: PropTypes.string.isRequired,
+      endDate: PropTypes.string,
     })
-  ),
+  ).isRequired,
 };
