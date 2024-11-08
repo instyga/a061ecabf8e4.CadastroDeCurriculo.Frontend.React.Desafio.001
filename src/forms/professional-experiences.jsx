@@ -63,9 +63,6 @@ export function FormProfessionalExperiences({ onAddExperience }) {
       startDate: data.startDate.toISOString(),
       endDate: isCurrentJob ? "Presente" : data.endDate?.toISOString(),
     };
-
-    console.log('Dados da experiência a serem adicionados:', experience);
-
    
     if (onAddExperience) {
       onAddExperience(experience);

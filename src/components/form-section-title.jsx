@@ -8,7 +8,7 @@ export const FormSectionTitle = ({ step, title, caption }) => {
         {step}
       </Avatar>
       <Stack gap={0}>
-        <Title order={2} size="h2">
+        <Title order={2} size="spam">
           {title}
         </Title>
         <Text size="sm" color="dimmed">

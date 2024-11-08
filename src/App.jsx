@@ -1,7 +1,7 @@
 import { AppShell } from "@mantine/core";
 import { AppFooter } from "./components/app-footer";
 import { AppHeader } from "./components/app-header";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Home from "./pages/home";
 
 const App = () => {
@@ -13,11 +13,36 @@ const App = () => {
 
   const totalSteps = 3;
 
+  
+  const saveToLocalStorage = () => {
+    const formData = {
+      currentStep,
+      personalData,
+      professionalExperiences,
+      scholarships,
+    };
+    localStorage.setItem("formData", JSON.stringify(formData));
+  };
+
+
+  useEffect(() => {
+    saveToLocalStorage();
+  }, [currentStep, personalData, professionalExperiences, scholarships]);
+
+  useEffect(() => {
+    const savedData = JSON.parse(localStorage.getItem("formData"));
+    if (savedData) {
+      setCurrentStep(savedData.currentStep || 0);
+      setPersonalData(savedData.personalData || {});
+      setProfessionalExperiences(savedData.professionalExperiences || []);
+      setScholarships(savedData.scholarships || []);
+    }
+  }, []);
+
   const handleNext = () => {
     if (isNextStepAllowed) {
       setCurrentStep((prev) => {
         const nextStep = Math.min(prev + 1, totalSteps - 1);
-        console.log(`Etapa ${nextStep}:`, { personalData, professionalExperiences, scholarships }); 
         return nextStep;
       });
       setIsNextStepAllowed(false); 
@@ -82,4 +107,3 @@ const App = () => {
 };
 
 export default App;
-

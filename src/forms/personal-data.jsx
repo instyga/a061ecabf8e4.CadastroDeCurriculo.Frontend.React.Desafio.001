@@ -40,7 +40,6 @@ export const FormPersonalData = ({ onValidation }) => {
 
   const debouncedValidation = useCallback(
     debounce((isValid) => {
-      console.log("Validação do formulário:", isValid);
       onValidation(isValid);
     }, 300),
     [onValidation]
@@ -53,7 +52,7 @@ export const FormPersonalData = ({ onValidation }) => {
   }, [formValues, isValid, debouncedValidation]);
 
   const onSubmit = (data) => {
-    console.log("Dados pessoais:", data);
+  
   };
 
   const showError = (field) => errors[field]?.message;
@@ -241,3 +240,4 @@ export const FormPersonalData = ({ onValidation }) => {
     </div>
   );
 };
+

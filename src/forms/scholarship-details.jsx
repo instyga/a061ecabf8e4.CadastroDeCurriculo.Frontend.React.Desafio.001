@@ -46,7 +46,7 @@ export function FormScholarshipDetails({ onAddScholarship, onFormValidChange }) 
       startDate: data.startDate.toISOString(),
       endDate: data.isActual ? null : data.endDate ? data.endDate.toISOString() : null,
     };
-    console.log("Submitting scholarship data:", scholarship);
+    
 
     onAddScholarship(scholarship);
     reset(); 
