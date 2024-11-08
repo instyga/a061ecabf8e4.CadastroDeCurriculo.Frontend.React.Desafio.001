@@ -6,10 +6,11 @@ import { useState } from "react";
 import { ProfessionalExperiencesList } from "../forms/professional-experiences-list";
 import { ScholarshipList } from "../forms/scholarship-list"; 
 import { FormScholarshipDetails } from "../forms/scholarship-details"; 
+import { useEffect } from 'react';
 
 const Home = ({ currentStep, setIsNextStepAllowed }) => {
   const [experiences, setExperiences] = useState([]);
-  const [scholarships, setScholarships] = useState([]); 
+  const [scholarships, setScholarships] = useState([]);
 
   const handleAddExperience = (experience) => {
     setExperiences((prev) => [...prev, experience]);
@@ -20,6 +21,17 @@ const Home = ({ currentStep, setIsNextStepAllowed }) => {
     setScholarships((prev) => [...prev, scholarship]);
     setIsNextStepAllowed(true);
   };
+
+  useEffect(() => {
+    console.log(`Current step: ${currentStep}`);
+    if (currentStep === 0) {
+      console.log('Form: Personal Data');
+    } else if (currentStep === 1) {
+      console.log('Form: Professional Experiences');
+    } else if (currentStep === 2) {
+      console.log('Form: Scholarship Details');
+    }
+  }, [currentStep]);
 
   return (
     <Container>
@@ -39,7 +51,6 @@ const Home = ({ currentStep, setIsNextStepAllowed }) => {
         </>
       )}
 
-    
       {currentStep === 2 && (
         <>
           <FormScholarshipDetails onAddScholarship={handleAddScholarship} onFormValidChange={setIsNextStepAllowed} />
@@ -51,4 +62,3 @@ const Home = ({ currentStep, setIsNextStepAllowed }) => {
 };
 
 export default Home;
-

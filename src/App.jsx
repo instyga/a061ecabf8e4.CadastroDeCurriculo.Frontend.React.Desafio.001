@@ -8,11 +8,18 @@ const App = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [isNextStepAllowed, setIsNextStepAllowed] = useState(false);
   const [professionalExperiences, setProfessionalExperiences] = useState([]);
+  const [personalData, setPersonalData] = useState({});
+  const [scholarships, setScholarships] = useState([]);
+
   const totalSteps = 3;
 
   const handleNext = () => {
     if (isNextStepAllowed) {
-      setCurrentStep((prev) => Math.min(prev + 1, totalSteps - 1)); 
+      setCurrentStep((prev) => {
+        const nextStep = Math.min(prev + 1, totalSteps - 1);
+        console.log(`Etapa ${nextStep}:`, { personalData, professionalExperiences, scholarships }); 
+        return nextStep;
+      });
       setIsNextStepAllowed(false); 
     }
   };
@@ -23,7 +30,25 @@ const App = () => {
 
   const handleExperienceAdded = (experience) => {
     setProfessionalExperiences((prev) => [...prev, experience]);
-    setIsNextStepAllowed(true); 
+    setIsNextStepAllowed(true);
+  };
+
+  const handlePersonalData = (data) => {
+    setPersonalData(data);
+  };
+
+  const handleScholarshipAdded = (scholarship) => {
+    setScholarships((prev) => [...prev, scholarship]);
+    setIsNextStepAllowed(true);
+  };
+
+  const handleSubmit = () => {
+    const formData = {
+      personalData,
+      professionalExperiences,
+      scholarships,
+    };
+    console.log("Objeto final ao salvar dados:", formData); 
   };
 
   return (
@@ -33,10 +58,13 @@ const App = () => {
       </AppShell.Header>
       <AppShell.Main>
         <Home
-          currentStep={currentStep} onFormValidChange={setIsNextStepAllowed} 
+          currentStep={currentStep}
+          setIsNextStepAllowed={setIsNextStepAllowed}
           onExperienceAdded={handleExperienceAdded}
+          onPersonalData={handlePersonalData}
+          onScholarshipAdded={handleScholarshipAdded}
           professionalExperiences={professionalExperiences}
-          setIsNextStepAllowed={setIsNextStepAllowed} 
+          scholarships={scholarships}
         />
       </AppShell.Main>
       <AppShell.Footer>
@@ -46,6 +74,7 @@ const App = () => {
           isNextStepAllowed={isNextStepAllowed}
           currentStep={currentStep}
           totalSteps={totalSteps}
+          onSubmit={handleSubmit} 
         />
       </AppShell.Footer>
     </AppShell>

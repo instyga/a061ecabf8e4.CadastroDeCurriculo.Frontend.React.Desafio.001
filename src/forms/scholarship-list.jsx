@@ -60,7 +60,7 @@ export const ScholarshipList = ({ scholarships }) => {
 ScholarshipList.propTypes = {
   scholarships: PropTypes.arrayOf(
     PropTypes.shape({
-      id: PropTypes.number.isRequired,
+      id: PropTypes.string.isRequired,
       institution: PropTypes.string.isRequired,
       courseName: PropTypes.string.isRequired,
       startDate: PropTypes.string.isRequired,

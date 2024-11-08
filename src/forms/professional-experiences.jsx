@@ -81,7 +81,7 @@ export function FormProfessionalExperiences({ onAddExperience }) {
             step={2}
             title="Experiência profissional"
             caption="Lista de experiências profissionais"
-            titleOrder={3}
+            titleOrder={4}
           />
         }
       >

@@ -4,8 +4,9 @@ import MaskedInput from "react-text-mask";
 import { FormSectionTitle } from "../components/form-section-title";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useForm, Controller } from "react-hook-form";
-import { useEffect } from "react";
+import { useForm, Controller, useWatch } from "react-hook-form";
+import { useEffect, useCallback } from "react";
+import debounce from "lodash.debounce";
 
 const schema = z.object({
   fullName: z.string().min(1, "Campo obrigatório"),
@@ -21,7 +22,7 @@ const schema = z.object({
     }),
   email: z.string().email("E-mail inválido"),
   telephone: z.string().min(1, "Número invalido"),
-  cellPhone: z.string().min(1, "Número invealido"),
+  cellPhone: z.string().min(1, "Número invalido"),
   website: z.string().optional(),
   linkedIn: z.string().optional(),
   gitHub: z.string().optional(),
@@ -31,39 +32,42 @@ export const FormPersonalData = ({ onValidation }) => {
   const {
     register,
     handleSubmit,
-    getValues,
     control,
-    formState: { errors, isValid, touchedFields },
-    trigger,
+    formState: { errors, isValid },
   } = useForm({
     resolver: zodResolver(schema),
     mode: "onTouched",
   });
 
-  useEffect(() => {
-    onValidation(isValid); 
-  }, [isValid, onValidation]);
+  
+  const debouncedValidation = useCallback(
+    debounce((isValid) => {
+      console.log("Validação do formulário:", isValid);
+      onValidation(isValid);
+    }, 300),
+    [onValidation]
+  );
 
-  const handleChange = async (event) => {
-    const values = getValues();
-    console.log(values);
-    await trigger();
-   
-  };
+  
+  const formValues = useWatch({ control });
+
+  useEffect(() => {
+    debouncedValidation(isValid);  
+  }, [formValues, isValid, debouncedValidation]);
 
   const onSubmit = (data) => {
     console.log("Dados pessoais:", data);
   };
 
-  const showError = (field) => touchedFields[field] && errors[field]?.message;
+  const showError = (field) => errors[field]?.message;
 
   return (
     <div>
       <FormSectionTitle 
-      step={1} 
-      title="Dados Pessoais" 
-      caption="Informações Pessoais de contato"
-      titleOrder={2}
+        step={1} 
+        title="Dados Pessoais" 
+        caption="Informações Pessoais de contato"
+        titleOrder={3}
       />
       <form onSubmit={handleSubmit(onSubmit)}>
         <Grid>
@@ -72,7 +76,7 @@ export const FormPersonalData = ({ onValidation }) => {
               withAsterisk
               label="Nome Completo"
               placeholder="Digite seu nome completo"
-              {...register("fullName", { onChange: handleChange })}
+              {...register("fullName")}
               error={showError("fullName")}
             />
           </Grid.Col>
@@ -85,10 +89,7 @@ export const FormPersonalData = ({ onValidation }) => {
                   withAsterisk
                   label="Gênero"
                   value={field.value}
-                  onChange={(value) => {
-                    field.onChange(value);
-                    handleChange();
-                  }}
+                  onChange={field.onChange}
                   onBlur={field.onBlur}
                   error={showError("gender")}
                 >
@@ -112,10 +113,7 @@ export const FormPersonalData = ({ onValidation }) => {
                   label="Nacionalidade"
                   placeholder="Selecione sua nacionalidade"
                   value={field.value}
-                  onChange={(value) => {
-                    field.onChange(value);
-                    handleChange();
-                  }}
+                  onChange={field.onChange}
                   onBlur={field.onBlur}
                   error={showError("nacionality")}
                 />
@@ -126,7 +124,7 @@ export const FormPersonalData = ({ onValidation }) => {
             <TextInput
               withAsterisk
               label="Naturalidade"
-              {...register("placeBirth", { onChange: handleChange })}
+              {...register("placeBirth")}
               error={showError("placeBirth")}
             />
           </Grid.Col>
@@ -142,10 +140,6 @@ export const FormPersonalData = ({ onValidation }) => {
                   label="Data de Nascimento"
                   {...field}
                   error={showError("birthday")}
-                  onChange={(value) => {
-                    field.onChange(value);
-                    handleChange();
-                  }}
                 />
               )}
             />
@@ -154,7 +148,7 @@ export const FormPersonalData = ({ onValidation }) => {
             <TextInput
               label="E-mail"
               placeholder="email@email.com"
-              {...register("email", { onChange: handleChange })}
+              {...register("email")}
               error={showError("email")}
             />
           </Grid.Col>
@@ -224,21 +218,21 @@ export const FormPersonalData = ({ onValidation }) => {
           <Grid.Col span={{ xs: 12, md: 4 }}>
             <TextInput
               label="Website / Portfólio"
-              {...register("website", { onChange: handleChange })}
+              {...register("website")}
               error={showError("website")}
             />
           </Grid.Col>
           <Grid.Col span={{ xs: 12, md: 4 }}>
             <TextInput
               label="LinkedIn"
-              {...register("linkedIn", { onChange: handleChange })}
+              {...register("linkedIn")}
               error={showError("linkedIn")}
             />
           </Grid.Col>
           <Grid.Col span={{ xs: 12, md: 4 }}>
             <TextInput
               label="GitHub"
-              {...register("gitHub", { onChange: handleChange })}
+              {...register("gitHub")}
               error={showError("gitHub")}
             />
           </Grid.Col>

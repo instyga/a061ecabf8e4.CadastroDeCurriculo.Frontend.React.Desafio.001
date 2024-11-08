@@ -60,7 +60,6 @@ export function FormScholarshipDetails({ onAddScholarship, onFormValidChange }) 
 
   const isCurrentlyEnrolled = watch("isActual");
 
-  const descriptionFilled = watch("description")?.length > 0;
 
   return (
     <form onSubmit={handleSubmit(onSubmitHandler)}>
@@ -70,7 +69,7 @@ export function FormScholarshipDetails({ onAddScholarship, onFormValidChange }) 
             step={3}
             title="Detalhes da Bolsa"
             caption="Informações sobre suas bolsas de estudo"
-            titleOrder={3} 
+            titleOrder={5} 
           />
         }
       >
